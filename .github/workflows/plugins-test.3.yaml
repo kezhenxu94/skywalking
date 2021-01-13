@@ -40,7 +40,6 @@ jobs:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
-      fail-fast: true
       matrix:
         case:
           - mysql-scenario
@@ -72,6 +71,7 @@ jobs:
           - xxl-job-2.x-scenario
           - thrift-scenario
           - dbcp-2.x-scenario
+          - oracle-scenario
     steps:
       - uses: actions/checkout@v2
         with:
@@ -86,39 +86,14 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Add checkstyle-plugin
-        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/'"${{ matrix.case }}"'<\/sourceDirectory>' test/plugin/pom.xml
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: ${{ matrix.case }}
-        run: bash test/plugin/run.sh ${{ matrix.case }}
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
-
-  Oracle:
-    name: Oracle
-    runs-on: ubuntu-18.04
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: Add checkstyle-plugin
-        run: sed -i '/<\/sourceDirectories>/i <sourceDirectory>scenarios\/oracle-scenario<\/sourceDirectory>' test/plugin/pom.xml
-      - name: Build SkyWalking Agent
-        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
-      - name: Build Docker image
-        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests
-      - name: Oracle 10.2.0.4.0 (1)
+      - name: Download and Install Oracle Jars
+        if: ${{ matrix.case }} == "oracle-scenario"
         run: |
+          mkdir -p ./skywalking-agent/plugins/
           curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
           curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-2.0.0.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/2.0.0/apm-oracle-10.x-plugin-2.0.0.jar
           ./mvnw --batch-mode install:install-file -Dfile=ojdbc14-10.2.0.4.0.jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
-          bash test/plugin/run.sh oracle-scenario
-      - name: Report Coverage
-        run: bash -x tools/coverage/report.sh
+      - name: Run Plugin Test
+        uses: ./.github/actions/plugins-test
+        with:
+          test_case: ${{ matrix.case }}
