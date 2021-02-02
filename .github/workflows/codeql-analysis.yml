@@ -40,7 +40,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - run: ./mvnw -DskipTests clean install
+    - run: ./mvnw -T2C -DskipTests clean install || ./mvnw -T2C -DskipTests clean install || ./mvnw -DskipTests clean install
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
