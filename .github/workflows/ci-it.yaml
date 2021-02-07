@@ -20,6 +20,9 @@ on:
   pull_request:
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
+  push:
+    branches:
+      - chore/jdk11
 
 env:
   MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
@@ -90,7 +93,7 @@ jobs:
           java-version: 11
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install javadoc:javadoc
 
   CI-on-Windows:
     runs-on: windows-latest

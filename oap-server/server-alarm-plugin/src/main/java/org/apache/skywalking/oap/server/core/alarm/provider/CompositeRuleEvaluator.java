@@ -53,7 +53,6 @@ public class CompositeRuleEvaluator {
      *
      * @param compositeAlarmRules compositeRules
      * @param alarmMessages       triggered alarm messages
-     * @return
      */
     public List<AlarmMessage> evaluate(List<CompositeAlarmRule> compositeAlarmRules, List<AlarmMessage> alarmMessages) {
         final List<AlarmMessage> compositeRuleMessages = new ArrayList<>();
