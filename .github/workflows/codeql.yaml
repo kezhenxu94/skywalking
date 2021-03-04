@@ -1,0 +1,35 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ 'master', 'test/*' ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '28 3 * * *'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+
+    - run: ./mvnw -T2C -DskipTests clean install || ./mvnw -DskipTests clean install
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
