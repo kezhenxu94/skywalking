@@ -34,6 +34,8 @@ inputs:
       "docs/menu.yml"
       ".github/actions/skip/action.yml"
       "dist-material/release-docs"
+      "test/plugin"
+
 runs:
   using: "composite"
   steps:
