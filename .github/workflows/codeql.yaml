@@ -29,7 +29,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - run: ./mvnw -B -T2C -Dmaven.test.skip=true -Dmaven.wagon.http.retryHandler.count=3 clean package
+    - run: ./mvnw -B -T4 -Dmaven.test.skip=true -Dmaven.wagon.http.retryHandler.count=3 clean package
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
