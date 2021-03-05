@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ 'master', 'test/*' ]
   schedule:
-    - cron: '28 3 * * *'
+    - cron: '0 18 * * *'
 
 jobs:
   analyze:
@@ -29,7 +29,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - run: ./mvnw -DskipTests clean install
+    - run: ./mvnw -T1C -DskipTests clean install
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
