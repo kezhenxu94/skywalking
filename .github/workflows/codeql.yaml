@@ -19,6 +19,9 @@ name: "CodeQL"
 on:
   pull_request:
     branches: [ 'master' ]
+  push:
+    branches:
+      - 'test/*'
   schedule:
     - cron: '28 3 * * *'
 
@@ -42,8 +45,12 @@ jobs:
       uses: github/codeql-action/init@v1
       with:
         languages: ${{ matrix.language }}
+        queries: +security-and-quality
 
-    - run: ./mvnw -Dmaven.test.skip=true clean install
+    - name: Compile Classes
+      run: |
+        ./mvnw -Dmaven.test.skip=true clean install || \
+        ./mvnw -Dmaven.test.skip=true clean install # Retry one more time if failed
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
