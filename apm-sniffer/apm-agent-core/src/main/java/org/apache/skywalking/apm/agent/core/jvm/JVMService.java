@@ -52,7 +52,6 @@ public class JVMService implements BootService, Runnable {
         sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);
     }
 
-    @Override
     public void boot() throws Throwable {
         collectMetricFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("JVMService-produce"))
