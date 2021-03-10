@@ -47,7 +47,6 @@ public class JVMService implements BootService, Runnable {
     private volatile ScheduledFuture<?> sendMetricFuture;
     private JVMMetricsSender sender;
 
-    @Override
     public void prepare() throws Throwable {
         sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);
     }
