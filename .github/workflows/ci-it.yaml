@@ -90,7 +90,9 @@ jobs:
           java-version: 11
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: |
+          ./mvnw --batch-mode -nsu -Dmaven.wagon.http.retryHandler.count=3 clean verify install -T1C || \
+          ./mvnw --batch-mode -nsu -Dmaven.wagon.http.retryHandler.count=3 clean verify install
 
   CI-on-Windows:
     runs-on: windows-latest
