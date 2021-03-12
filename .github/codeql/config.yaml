@@ -16,7 +16,6 @@
 
 name: "CodeQL Config"
 queries:
-  - name: Run Custom Queries
   - uses: security-and-quality
 paths-ignore:
   - '**/generated-sources/**'
