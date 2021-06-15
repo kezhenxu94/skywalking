@@ -17,6 +17,9 @@
 name: CI AND IT
 
 on:
+  push:
+    branches:
+      - ci/parallel
   pull_request:
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
@@ -62,7 +65,7 @@ jobs:
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
         run: |
-          ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          ./mvnw -T2C --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         if: env.SKIP_CI != 'true'
@@ -94,7 +97,7 @@ jobs:
           java-version: 11
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
-        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw -T2C --batch-mode -P"agent,backend,ui,dist" clean verify install
 
   CI-on-Windows:
     runs-on: windows-latest
@@ -112,7 +115,7 @@ jobs:
       - name: 'Install & Test'
         if: env.SKIP_CI != 'true'
         run: |
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+          ./mvnw -T2C --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
