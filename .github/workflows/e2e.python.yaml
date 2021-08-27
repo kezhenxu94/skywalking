@@ -32,8 +32,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-tar:
+    name: Build Tar
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Build Tar
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-tar
+
+  build-docker:
+    name: Build Docker
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-tar ]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - es-version: es6
+            tag: latest
+          - es-version: es7
+            tag: latest-es7
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Build Docker
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-docker
+
   PythonAgent:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-docker ]
     name: PythonAgent
     runs-on: ubuntu-latest
     timeout-minutes: 30

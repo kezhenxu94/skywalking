@@ -32,45 +32,52 @@ env:
   SKIP_TEST: true
   DOCKER_DIR: ./docker
   LOG_DIR: /tmp/skywalking
+
 jobs:
-  build:
+  build-tar:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      fail-fast: true
-      matrix:
-        es: [es6, es7]
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
+      - name: Build
+        uses: ./.github/actions/build-tar
+
+  build-docker:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-tar ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        es: [es6, es7]
+    env:
+      TAG: ${{ matrix.es }}
+      ES_VERSION: ${{ matrix.es }}
+    steps:
+      - uses: actions/checkout@v2
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/cache@v1
+          submodules: true
+      - uses: actions/download-artifact@v2
+        name: Upload Agent
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          name: dist
+          path: dist
       - name: Build docker image
-        run: export ES_VERSION=${{ matrix.es }} && export TAG=${{ matrix.es }} && (make docker || make docker)
+        run: make docker.all || make docker.all
       - name: Bootstrap cluster
         run: |
           case ${{ matrix.es }} in
           es6) export ES_TAG=6.8.1 ;;
           es7) export ES_TAG=7.5.0 ;;
           esac
-
-          export TAG=${{ matrix.es }}
           cd ${DOCKER_DIR} && docker-compose up -d
       - name: Check port available
         run: |
+          set -e
           source ./test/scripts/env.sh
           echo "Waiting for OAP ready"
           export PORT=11800
@@ -81,15 +88,15 @@ jobs:
           check_sw_port
           echo "UI is ready"
       - name: Collect logs
+        if: ${{ always() }}
         run: |
           mkdir -p ${LOG_DIR}
           cd ${DOCKER_DIR}
           docker-compose logs oap > ${LOG_DIR}/oap.txt
           docker-compose logs ui > ${LOG_DIR}/ui.txt
           docker-compose logs elasticsearch > ${LOG_DIR}/es.txt
-        continue-on-error: true
       - uses: actions/upload-artifact@v1.0.0
-        continue-on-error: true
+        if: ${{ always() }}
         with:
           name: logs
-          path: /tmp/skywalking
+          path: $LOG_DIR

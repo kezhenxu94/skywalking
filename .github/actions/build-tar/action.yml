@@ -16,26 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-name: 'Run E2E Test'
-description: 'Common steps when running an E2E Test'
-inputs:
-  test_class:
-    description: 'The e2e test class name'
-    required: true
+name: Build Tar
+description: Action to build the binary tar
 runs:
   using: "composite"
   steps:
-    - uses: actions/download-artifact@v2
-      name: Upload Agent
+    - name: Check License
+      uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
       with:
-        name: containers
-        path: containers
-    - name: Load Containers
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-build-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven-
+    - name: Build
       shell: bash
-      run: |
-        for file in $(ls containers | grep ".tgz"); do
-          docker load -i $file
-        done
-    - name: Run E2E Test
-      shell: bash
-      run: ./mvnw -B -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=${{ inputs.test_class }}
+      run: ./mvnw -q --batch-mode -P"all,dist" -Dmaven.test.skip clean install
+    - uses: actions/upload-artifact@v2
+      name: Upload Tar
+      with:
+        name: dist
+        path: dist

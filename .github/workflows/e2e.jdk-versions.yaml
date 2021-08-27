@@ -28,6 +28,7 @@ concurrency:
 jobs:
   JavaVersions:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-docker ]
     name: Agent Java Versions
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -51,6 +52,12 @@ jobs:
         with:
           distribution: adopt
           java-version: ${{ matrix.jdk }}
+      - name: Build Tar
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-tar
+      - name: Build Docker
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-docker
       - name: Run E2E Test
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test

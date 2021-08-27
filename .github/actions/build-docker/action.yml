@@ -1,0 +1,57 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+name: Build Docker
+description: Action to build the Docker images
+inputs:
+  es-version:
+    description: The Docker image for which ElasticSearch version, es6 or es7
+    required: false
+    default: es6
+  tag:
+    description: The Docker image tag
+    required: false
+    default: latest
+env:
+  ES_VERSION: ${{ inputs.es-version }}
+  TAG: ${{ inputs.tag }}
+runs:
+  using: "composite"
+  steps:
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-build-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven-
+    - uses: actions/download-artifact@v2
+      name: Upload Agent
+      with:
+        name: dist
+        path: dist
+    - name: Build docker images
+      run: make docker.oap || make docker.oap
+    - name: Save docker images
+      run: |
+        mkdir containers || exit 1
+        docker save -o containers/skywalking-oap-${{ inputs.tag }}.tgz skywalking/oap:-${{ inputs.tag }}
+    - uses: actions/upload-artifact@v2
+      name: Upload Docker Images
+      with:
+        name: containers
+        path: containers

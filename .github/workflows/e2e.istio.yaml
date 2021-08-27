@@ -37,15 +37,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-tar:
+    name: Build Tar
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Build Tar
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-tar
+
+  build-docker:
+    name: Build Docker
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-tar ]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - es-version: es6
+            tag: latest
+          - es-version: es7
+            tag: latest-es7
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Build Docker
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-docker
+
   als:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-docker ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: true
       matrix:
-        analyzer: [k8s-mesh, mx-mesh]
-        istio_version: [1.7.1, 1.8.2, 1.9.1]
+        analyzer: [ k8s-mesh, mx-mesh ]
+        istio_version: [ 1.7.1, 1.8.2, 1.9.1 ]
     name: Istio(${{ matrix.istio_version }})+ALS(${{ matrix.analyzer }})
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
@@ -56,17 +96,6 @@ jobs:
 
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-
-      - uses: actions/cache@v2
-        if: env.SKIP_CI != 'true'
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build Docker Image
-        if: env.SKIP_CI != 'true'
-        run: make docker
 
       - name: Prepare environment
         if: env.SKIP_CI != 'true'
@@ -162,13 +191,14 @@ jobs:
 
   metrics-service:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-docker ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     name: Istio(${{ matrix.istio_version }})+MetricsService
     strategy:
       fail-fast: true
       matrix:
-        istio_version: [1.8.2, 1.9.1]
+        istio_version: [ 1.8.2, 1.9.1 ]
     env:
       ISTIO_VERSION: ${{ matrix.istio_version }}
     steps:
@@ -178,17 +208,6 @@ jobs:
 
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-
-      - uses: actions/cache@v2
-        if: env.SKIP_CI != 'true'
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Build Docker Image
-        if: env.SKIP_CI != 'true'
-        run: make docker
 
       - name: Prepare environment
         if: env.SKIP_CI != 'true'

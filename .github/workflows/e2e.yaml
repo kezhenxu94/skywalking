@@ -33,52 +33,77 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  FeatureGroup01:
+  build-tar:
+    name: Build Tar
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Feature
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      matrix:
-        case: [auth, ssl]
-    env:
-      SW_SIMPLE_CASE: ${{ matrix.case }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Run E2E Test
+      - name: Build Tar
         if: env.SKIP_CI != 'true'
-        uses: ./.github/actions/e2e-test
-        with:
-          test_class: org.apache.skywalking.e2e.simple.SimpleE2E
+        uses: ./.github/actions/build-tar
 
-  FeatureGroup02:
+  build-docker:
+    name: Build Docker
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: ${{ matrix.case.name }}
+    needs: [ build-tar ]
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     strategy:
+      fail-fast: true
       matrix:
-        case:
-          - name: Lua Nginx
-            class: org.apache.skywalking.e2e.LuaE2E
-          - name: Gateway
-            class: org.apache.skywalking.e2e.GatewayE2E
-          - name: Meter
-            class: org.apache.skywalking.e2e.meter.MeterE2E
-          - name: Zabbix
-            class: org.apache.skywalking.e2e.zabbix.ZabbixE2E
+        include:
+          - es-version: es6
+            tag: latest
+          - es-version: es7
+            tag: latest-es7
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set Skip Env Var
         uses: ./.github/actions/skip
-      - name: Run E2E Test
+      - name: Build Docker
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/build-docker
+        with:
+          es-version: ${{ matrix.es-version }}
+          tag: ${{ matrix.tag }}
+
+  feature-test:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    needs: [ build-docker ]
+    name: Feature Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        case: simple
+        class:
+          - org.apache.skywalking.e2e.LuaE2E
+          - org.apache.skywalking.e2e.GatewayE2E
+          - org.apache.skywalking.e2e.meter.MeterE2E
+          - org.apache.skywalking.e2e.zabbix.ZabbixE2E
+        include:
+          - case: auth
+            class: org.apache.skywalking.e2e.simple.SimpleE2E
+          - case: ssl
+            class: org.apache.skywalking.e2e.simple.SimpleE2E
+    env:
+      SW_SIMPLE_CASE: ${{ matrix.sw-simple-case }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: ${ matrix.case }}
         if: env.SKIP_CI != 'true'
         uses: ./.github/actions/e2e-test
         with:
-          test_class: ${{ matrix.case.class }}
+          test_class: ${{ matrix.class }}
