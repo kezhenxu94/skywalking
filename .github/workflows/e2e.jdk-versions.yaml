@@ -28,7 +28,6 @@ concurrency:
 jobs:
   JavaVersions:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    needs: [ build-docker ]
     name: Agent Java Versions
     runs-on: ubuntu-latest
     timeout-minutes: 90
