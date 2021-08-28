@@ -43,6 +43,7 @@ runs:
         path: dist
     - name: Build docker images
       env:
+        SKIP_TEST: true
         ES_VERSION: ${{ inputs.es-version }}
         TAG: ${{ inputs.tag }}
       shell: bash
