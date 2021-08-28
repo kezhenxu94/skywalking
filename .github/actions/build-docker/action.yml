@@ -37,7 +37,7 @@ runs:
         key: ${{ runner.os }}-maven-build-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-maven-
     - uses: actions/download-artifact@v2
-      name: Upload Agent
+      name: Download Agent
       with:
         name: dist
         path: dist
@@ -51,7 +51,7 @@ runs:
       shell: bash
       run: |
         mkdir containers || exit 1
-        docker save -o containers/skywalking-oap-${{ inputs.tag }}.tgz skywalking/oap:-${{ inputs.tag }}
+        docker save -o containers/skywalking-oap-${{ inputs.tag }}.tgz skywalking/oap:${{ inputs.tag }}
     - uses: actions/upload-artifact@v2
       name: Upload Docker Images
       with:
