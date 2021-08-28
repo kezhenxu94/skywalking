@@ -35,5 +35,5 @@ runs:
     - uses: actions/upload-artifact@v2
       name: Upload Tar
       with:
-        name: dist
+        name: dist-${{ github.run_id }}
         path: dist
