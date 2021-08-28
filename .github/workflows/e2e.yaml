@@ -83,16 +83,16 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        case: simple
+        case: 'simple'
         class:
           - org.apache.skywalking.e2e.LuaE2E
           - org.apache.skywalking.e2e.GatewayE2E
           - org.apache.skywalking.e2e.meter.MeterE2E
           - org.apache.skywalking.e2e.zabbix.ZabbixE2E
         include:
-          - case: auth
+          - case: 'auth'
             class: org.apache.skywalking.e2e.simple.SimpleE2E
-          - case: ssl
+          - case: 'ssl'
             class: org.apache.skywalking.e2e.simple.SimpleE2E
     env:
       SW_SIMPLE_CASE: ${{ matrix.sw-simple-case }}
