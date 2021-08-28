@@ -27,9 +27,6 @@ inputs:
     description: The Docker image tag
     required: false
     default: latest
-env:
-  ES_VERSION: ${{ inputs.es-version }}
-  TAG: ${{ inputs.tag }}
 runs:
   using: "composite"
   steps:
@@ -45,6 +42,9 @@ runs:
         name: dist
         path: dist
     - name: Build docker images
+      env:
+        ES_VERSION: ${{ inputs.es-version }}
+        TAG: ${{ inputs.tag }}
       shell: bash
       run: make docker.oap || make docker.oap
     - name: Save docker images
