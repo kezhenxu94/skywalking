@@ -53,6 +53,7 @@ runs:
       run: |
         mkdir containers || exit 1
         docker save -o containers/skywalking-oap-${{ inputs.tag }}.tgz skywalking/oap:${{ inputs.tag }}
+        docker save -o containers/skywalking-ui-latest.tgz skywalking/ui
     - uses: actions/upload-artifact@v2
       name: Upload Docker Images
       with:
