@@ -22,7 +22,7 @@ inputs:
    id:
      description: The identifier to distinguish the artifact
      required: false
-     default: dist-${{ github.job_id }}
+     default: dist-$GITHUB_JOB_ID }}
 runs:
   using: "composite"
   steps:
