@@ -34,7 +34,7 @@ runs:
       shell: bash
       run: |
         for file in $(ls containers | grep ".tgz"); do
-          docker load -i $file
+          docker load -i containers/$file
         done
     - name: Run E2E Test
       shell: bash
