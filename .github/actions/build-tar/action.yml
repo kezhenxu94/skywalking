@@ -37,3 +37,4 @@ runs:
       with:
         name: dist-${{ github.run_id }}
         path: dist
+        retention-days: 2
