@@ -46,7 +46,7 @@ runs:
         ES_VERSION: ${{ inputs.es-version }}
         TAG: ${{ inputs.tag }}
       shell: bash
-      run: make docker.oap || make docker.oap
+      run: make docker || make docker
     - name: Save docker images
       shell: bash
       run: |
