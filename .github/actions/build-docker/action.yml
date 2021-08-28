@@ -39,7 +39,7 @@ runs:
     - uses: actions/download-artifact@v2
       name: Download Agent
       with:
-        name: dist
+        name: dist-${{ github.run_id }}
         path: dist
     - name: Build docker images
       env:
@@ -57,5 +57,5 @@ runs:
     - uses: actions/upload-artifact@v2
       name: Upload Docker Images
       with:
-        name: containers
+        name: containers-${{ github.run_id }}
         path: containers
