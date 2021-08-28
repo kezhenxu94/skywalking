@@ -45,8 +45,10 @@ runs:
         name: dist
         path: dist
     - name: Build docker images
+      shell: bash
       run: make docker.oap || make docker.oap
     - name: Save docker images
+      shell: bash
       run: |
         mkdir containers || exit 1
         docker save -o containers/skywalking-oap-${{ inputs.tag }}.tgz skywalking/oap:-${{ inputs.tag }}
