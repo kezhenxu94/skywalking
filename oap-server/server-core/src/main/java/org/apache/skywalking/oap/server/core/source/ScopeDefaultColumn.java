@@ -51,8 +51,6 @@ public class ScopeDefaultColumn {
 
         /**
          * Dynamic active means this column is only activated through core setting explicitly.
-         *
-         * @return
          */
         boolean requireDynamicActive() default false;
 

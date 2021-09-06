@@ -1,0 +1,71 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+apply plugin: 'java'
+apply plugin: 'distribution'
+
+distributions {
+    main {
+        distributionBaseName = 'apache-skywalking-apm-bin'
+        version = ''
+        contents {
+            duplicatesStrategy DuplicatesStrategy.EXCLUDE
+            from "$rootDir/dist-material/release-docs"
+            into('bin') {
+                from "$rootDir/dist-material/bin"
+                fileMode 0755
+            }
+            into('config') {
+                from "$rootDir/dist-material/log4j2.xml"
+                from "$rootDir/dist-material/alarm-settings.yml"
+                from "$rootDir/oap-server/server-starter/src/main/resources"
+            }
+            into('config-examples') {
+                from "$rootDir/dist-material/config-examples"
+            }
+            into('tools/profile-exporter') {
+                from "$rootDir/tools/profile-exporter"
+            }
+            into('oap-libs') {
+                from subprojects.findAll { it.name != 'apm-webapp' }*.jar
+                from "$buildDir/dependencies/oap"
+            }
+            into('webapp') {
+                from project(':apm-webapp').jar.archivePath
+                from "$rootDir/apm-webapp/src/main/assembly/webapp.yml"
+            }
+        }
+    }
+}
+
+task copyDependencies(type: Copy) {
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    into("$buildDir/dependencies")
+    subprojects.findAll { it.name != 'apm-webapp' }.each {
+        from(it.configurations.runtimeClasspath) {
+            into('oap')
+        }
+    }
+}
+
+distTar.dependsOn(copyDependencies)
+distTar.dependsOn(':apm-webapp:bootJar')
+distZip.dependsOn(copyDependencies)
+distZip.dependsOn(':apm-webapp:bootJar')

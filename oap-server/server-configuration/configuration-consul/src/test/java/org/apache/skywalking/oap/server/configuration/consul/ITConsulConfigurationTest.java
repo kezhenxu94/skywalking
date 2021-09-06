@@ -52,7 +52,8 @@ public class ITConsulConfigurationTest {
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("consul:0.9"))
             .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
-            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
+            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0")
+            .withExposedPorts(8500);
 
     @Before
     public void setUp() throws Exception {

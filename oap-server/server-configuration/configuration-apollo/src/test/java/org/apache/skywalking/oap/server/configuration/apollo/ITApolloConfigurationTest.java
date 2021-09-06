@@ -46,6 +46,7 @@ import org.junit.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.yaml.snakeyaml.Yaml;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -56,7 +57,7 @@ public class ITApolloConfigurationTest {
     private final Yaml yaml = new Yaml();
     private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
-    private final ResponseHandler responseHandler = new BasicResponseHandler();
+    private final ResponseHandler<?> responseHandler = new BasicResponseHandler();
 
     private String baseUrl;
     private ApolloConfigurationTestProvider provider;
@@ -64,13 +65,16 @@ public class ITApolloConfigurationTest {
     @ClassRule
     public final static DockerComposeContainer<?> ENVIRONMENT =
         new DockerComposeContainer<>(new File(ITApolloConfigurationTest.class
-                                                .getClassLoader()
-                                                .getResource("docker/docker-compose.yaml").getPath()))
+                                                  .getClassLoader()
+                                                  .getResource("docker/docker-compose.yaml")
+                                                  .getPath()))
             .withExposedService("apollo-config-and-portal", 8080,
-                                Wait.forLogMessage(".*Config service started.*", 1))
+                                Wait.forLogMessage(".*Config service started.*", 1)
+                                    .withStartupTimeout(Duration.ofMinutes(2))
+            )
             .withExposedService("apollo-config-and-portal", 8070,
                                 Wait.forLogMessage(".*Portal started. You can visit.*", 1)
-                                    .withStartupTimeout(Duration.ofSeconds(100))
+                                    .withStartupTimeout(Duration.ofMinutes(2))
             );
 
     @Before
@@ -93,7 +97,9 @@ public class ITApolloConfigurationTest {
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        provider = (ApolloConfigurationTestProvider) moduleManager.find(ApolloConfigurationTestModule.NAME).provider();
+        provider =
+            (ApolloConfigurationTestProvider) moduleManager.find(ApolloConfigurationTestModule.NAME)
+                                                           .provider();
 
         assertNotNull(provider);
     }
@@ -104,10 +110,15 @@ public class ITApolloConfigurationTest {
         try {
             assertNull(provider.watcher.value());
 
-            final HttpPost createConfigPost = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application" + "/items");
+            final HttpPost createConfigPost = new HttpPost(
+                baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application" + "/items");
             createConfigPost.setHeader("Authorization", token);
             createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final StringEntity entity = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKey\",\n" + "    \"value\":\"3000\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
+            final StringEntity entity = new StringEntity(
+                "{\n" + "    \"key\":\"test-module.default.testKey\",\n" +
+                    "    \"value\":\"3000\",\n" + "    \"comment\":\"test key\",\n" +
+                    "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entity);
             String createResponse = null;
             //retry to wait apollo adminserver registered
@@ -118,11 +129,17 @@ public class ITApolloConfigurationTest {
                 log.info("createResponse: {}", createResponse);
             }
 
-            final HttpPost releaseConfigRequest = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application/releases");
-            releaseConfigRequest.setEntity(new StringEntity("{\n" + "    \"releaseTitle\":\"2019-06-07\",\n" + "    \"releaseComment\":\"test\",\n" + "    \"releasedBy\":\"apollo\"\n" + "}"));
+            final HttpPost releaseConfigRequest = new HttpPost(
+                baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application/releases");
+            releaseConfigRequest.setEntity(new StringEntity(
+                "{\n" + "    \"releaseTitle\":\"2019-06-07\",\n" +
+                    "    \"releaseComment\":\"test\",\n" + "    \"releasedBy\":\"apollo\"\n" +
+                    "}"));
             releaseConfigRequest.setHeader("Authorization", token);
             releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseCreateResponse =
+                (String) httpClient.execute(releaseConfigRequest, responseHandler);
             log.info("releaseCreateResponse: {}", releaseCreateResponse);
 
             for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
@@ -130,11 +147,15 @@ public class ITApolloConfigurationTest {
 
             assertEquals("3000", provider.watcher.value());
 
-            final HttpDelete deleteConfigRequest = new HttpDelete(baseUrl + "/openapi/v1" + "/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application" + "/items/test-module.default.testKey" + "?operator=apollo");
+            final HttpDelete deleteConfigRequest = new HttpDelete(
+                baseUrl + "/openapi/v1" + "/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application" + "/items/test-module.default.testKey" +
+                    "?operator=apollo");
             deleteConfigRequest.setHeader("Authorization", token);
             deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpClient.execute(deleteConfigRequest);
-            final String releaseDeleteResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseDeleteResponse =
+                (String) httpClient.execute(releaseConfigRequest, responseHandler);
             log.info("releaseDeleteResponse: {}", releaseDeleteResponse);
 
             for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
@@ -153,10 +174,15 @@ public class ITApolloConfigurationTest {
         try {
             assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
-            final HttpPost createConfigPost = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application" + "/items");
+            final HttpPost createConfigPost = new HttpPost(
+                baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application" + "/items");
             createConfigPost.setHeader("Authorization", token);
             createConfigPost.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final StringEntity entityItem1 = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKeyGroup.item1\",\n" + "    \"value\":\"100\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
+            final StringEntity entityItem1 = new StringEntity(
+                "{\n" + "    \"key\":\"test-module.default.testKeyGroup.item1\",\n" +
+                    "    \"value\":\"100\",\n" + "    \"comment\":\"test key\",\n" +
+                    "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entityItem1);
 
             String createResponseItem1 = null;
@@ -168,34 +194,51 @@ public class ITApolloConfigurationTest {
                 log.info("createResponse: {}", createResponseItem1);
             }
 
-            final StringEntity entityItem2 = new StringEntity("{\n" + "    \"key\":\"test-module.default.testKeyGroup.item2\",\n" + "    \"value\":\"200\",\n" + "    \"comment\":\"test key\",\n" + "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
+            final StringEntity entityItem2 = new StringEntity(
+                "{\n" + "    \"key\":\"test-module.default.testKeyGroup.item2\",\n" +
+                    "    \"value\":\"200\",\n" + "    \"comment\":\"test key\",\n" +
+                    "    \"dataChangeCreatedBy\":\"apollo\"\n" + "}");
             createConfigPost.setEntity(entityItem2);
-            final String createResponseItem2 = (String) httpClient.execute(createConfigPost, responseHandler);
+            final String createResponseItem2 =
+                (String) httpClient.execute(createConfigPost, responseHandler);
             log.info("createResponseItem2: {}", createResponseItem2);
 
-            final HttpPost releaseConfigRequest = new HttpPost(baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application/releases");
-            releaseConfigRequest.setEntity(new StringEntity("{\n" + "    \"releaseTitle\":\"2019-06-07\",\n" + "    \"releaseComment\":\"test\",\n" + "    \"releasedBy\":\"apollo\"\n" + "}"));
+            final HttpPost releaseConfigRequest = new HttpPost(
+                baseUrl + "/openapi/v1/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application/releases");
+            releaseConfigRequest.setEntity(new StringEntity(
+                "{\n" + "    \"releaseTitle\":\"2019-06-07\",\n" +
+                    "    \"releaseComment\":\"test\",\n" + "    \"releasedBy\":\"apollo\"\n" +
+                    "}"));
             releaseConfigRequest.setHeader("Authorization", token);
             releaseConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
-            final String releaseCreateResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseCreateResponse =
+                (String) httpClient.execute(releaseConfigRequest, responseHandler);
             log.info("releaseCreateResponse: {}", releaseCreateResponse);
 
-            for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+            for (String v = provider.groupWatcher.groupItems().get("item1"); v == null;
+                v = provider.groupWatcher.groupItems().get("item1")) {
             }
-            for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
+            for (String v = provider.groupWatcher.groupItems().get("item2"); v == null;
+                v = provider.groupWatcher.groupItems().get("item2")) {
             }
             assertEquals("100", provider.groupWatcher.groupItems().get("item1"));
             assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
 
             //test remove item1
-            final HttpDelete deleteConfigRequest = new HttpDelete(baseUrl + "/openapi/v1" + "/envs/DEV" + "/apps/SampleApp" + "/clusters/default" + "/namespaces/application" + "/items/test-module.default.testKeyGroup.item1" + "?operator=apollo");
+            final HttpDelete deleteConfigRequest = new HttpDelete(
+                baseUrl + "/openapi/v1" + "/envs/DEV" + "/apps/SampleApp" + "/clusters/default" +
+                    "/namespaces/application" + "/items/test-module.default.testKeyGroup.item1" +
+                    "?operator=apollo");
             deleteConfigRequest.setHeader("Authorization", token);
             deleteConfigRequest.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpClient.execute(deleteConfigRequest);
 
-            final String releaseDeleteResponse = (String) httpClient.execute(releaseConfigRequest, responseHandler);
+            final String releaseDeleteResponse =
+                (String) httpClient.execute(releaseConfigRequest, responseHandler);
             log.info("releaseDeleteResponse: {}", releaseDeleteResponse);
-            for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
+            for (String v = provider.groupWatcher.groupItems().get("item1"); v != null;
+                v = provider.groupWatcher.groupItems().get("item1")) {
             }
             assertNull(provider.groupWatcher.groupItems().get("item1"));
             assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
@@ -208,17 +251,21 @@ public class ITApolloConfigurationTest {
     @SuppressWarnings("unchecked")
     private void loadConfig(ApplicationConfiguration configuration) throws FileNotFoundException {
         Reader applicationReader = ResourceUtils.read("application.yml");
-        Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
+        Map<String, Map<String, Map<String, ?>>> moduleConfig =
+            yaml.loadAs(applicationReader, Map.class);
         if (CollectionUtils.isNotEmpty(moduleConfig)) {
             moduleConfig.forEach((moduleName, providerConfig) -> {
                 if (providerConfig.size() > 0) {
-                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration =
+                        configuration.addModule(moduleName);
                     providerConfig.forEach((name, propertiesConfig) -> {
                         Properties properties = new Properties();
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
+                                final Object replaceValue = yaml.load(
+                                    PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(
+                                        value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }
@@ -232,7 +279,7 @@ public class ITApolloConfigurationTest {
     }
 
     //for retry
-    private String httpExec(HttpUriRequest request, ResponseHandler responseHandler) {
+    private String httpExec(HttpUriRequest request, ResponseHandler<?> responseHandler) {
         try {
             return (String) this.httpClient.execute(request, responseHandler);
         } catch (IOException ignored) {

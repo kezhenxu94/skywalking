@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.support.membermodification.MemberModifier;
 
+@SuppressWarnings("unchecked")
 public class DataCarrierTest {
     @Test
     public void testCreateDataCarrier() throws IllegalAccessException {
@@ -50,7 +51,7 @@ public class DataCarrierTest {
         Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner")
                                           .get(channels)
                                           .getClass(), SimpleRollingPartitioner.class);
-        carrier.setPartitioner(new ProducerThreadPartitioner<SampleData>());
+        carrier.setPartitioner(new ProducerThreadPartitioner<>());
         Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner")
                                           .get(channels)
                                           .getClass(), ProducerThreadPartitioner.class);
@@ -58,7 +59,7 @@ public class DataCarrierTest {
 
     @Test
     public void testProduce() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
+        DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100);
         Assert.assertTrue(carrier.produce(new SampleData().setName("a")));
         Assert.assertTrue(carrier.produce(new SampleData().setName("b")));
         Assert.assertTrue(carrier.produce(new SampleData().setName("c")));
@@ -68,7 +69,7 @@ public class DataCarrierTest {
                                                                               .get(carrier));
         QueueBuffer<SampleData> buffer1 = channels.getBuffer(0);
 
-        List result = new ArrayList();
+        List<SampleData> result = new ArrayList<>();
         buffer1.obtain(result);
         Assert.assertEquals(2, result.size());
 
@@ -81,7 +82,7 @@ public class DataCarrierTest {
 
     @Test
     public void testIfPossibleProduce() throws IllegalAccessException {
-        DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100, BufferStrategy.IF_POSSIBLE);
+        DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100, BufferStrategy.IF_POSSIBLE);
 
         for (int i = 0; i < 200; i++) {
             Assert.assertTrue(carrier.produce(new SampleData().setName("d" + i)));
@@ -94,7 +95,7 @@ public class DataCarrierTest {
         Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
                                                                               .get(carrier));
         QueueBuffer<SampleData> buffer1 = channels.getBuffer(0);
-        List result = new ArrayList();
+        List<SampleData> result = new ArrayList<>();
         buffer1.obtain(result);
 
         QueueBuffer<SampleData> buffer2 = channels.getBuffer(1);
@@ -103,8 +104,8 @@ public class DataCarrierTest {
     }
 
     @Test
-    public void testBlockingProduce() throws IllegalAccessException {
-        final DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
+    public void testBlockingProduce() {
+        final DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100);
 
         for (int i = 0; i < 200; i++) {
             Assert.assertTrue(carrier.produce(new SampleData().setName("d" + i)));
@@ -118,8 +119,6 @@ public class DataCarrierTest {
                 e.printStackTrace();
             }
             IConsumer<SampleData> consumer = new IConsumer<SampleData>() {
-                int i = 0;
-
                 @Override
                 public void init(final Properties properties) {
 

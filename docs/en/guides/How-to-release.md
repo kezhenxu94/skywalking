@@ -4,30 +4,18 @@ If you're a committer, you can learn how to release SkyWalking in The Apache Way
 
 
 ## Set up your development environment
-Follow the steps in the [Apache maven deployment environment document](http://www.apache.org/dev/publishing-maven-artifacts.html#dev-env)
-to set gpg tool and encrypt passwords.
 
-Use the following block as a template and place it in `~/.m2/settings.xml`.
+Follow the [Getting Started](https://www.gnupg.org/gph/en/manual/c14.html) doc to set up the GPG keys locally, this step
+needs to be done only once, if you already have a valid GPG key available, you can skip this step.
 
-```
-<settings>
-...
-  <servers>
-    <!-- To publish a snapshot of some part of Maven -->
-    <server>
-      <id>apache.snapshots.https</id>
-      <username> <!-- YOUR APACHE LDAP USERNAME --> </username>
-      <password> <!-- YOUR APACHE LDAP PASSWORD (encrypted) --> </password>
-    </server>
-    <!-- To stage a release of some part of Maven -->
-    <server>
-      <id>apache.releases.https</id>
-      <username> <!-- YOUR APACHE LDAP USERNAME --> </username>
-      <password> <!-- YOUR APACHE LDAP PASSWORD (encrypted) --> </password>
-    </server>
-   ...
-  </servers>
-</settings>
+Add the following configurations into `~/.gradle/gradle.properties` (create this file if not exists).
+
+```properties
+publishing.user=your apache id
+publishing.pass=your apache password
+
+signing.gnupg.keyName=the gpg key you want to use # use gpg -K to list your keys
+signing.gnupg.passphrase=the passphrase of the gpg key
 ```
 
 ## Add your GPG public key
@@ -37,24 +25,29 @@ If you are a committer, use your Apache ID and password to log in this svn, and 
 Apache maven staging repository checklist.
 
 ## Test your settings
+
 This step is only for testing purpose. If your env is correctly set, you don't need to check every time.
-```
-./mvnw clean install -Pall (this will build artifacts, sources and sign)
+
+Run the following command to publish the artifacts to your local maven repository (typically `~/.m2/repository`), you
+should be able to see `.asc` along with the `.jar` files, such
+as `~/.m2/repository/org/apache/skywalking/server-configuration/8.9.0-SNAPSHOT/server-configuration-8.9.0-SNAPSHOT.jar.asc`
+
+```shell
+./gradlew publishToMavenLocal
 ```
 
 ## Prepare for the release
-```
-./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true -Pall
-```
+
+- Update the `version` number in [root `gradle.properties`](../../../gradle.properties).
 
 - Set version number as x.y.z, and tag as **v**x.y.z (The version tag must start with **v**. You will find out why this is necessary in the next step.)
 
-_You could do a GPG signature before preparing for the release. If you need to input the password to sign, and the maven doesn't provide you with the opportunity to do so, this may lead to failure of the release. To resolve this, you may run `gpg --sign xxx` in any file. This will allow it to remember the password for long enough to prepare for the release._ 
+_You could do a GPG signature before preparing for the release. If you need to input the password to sign, and the Gradle doesn't provide you with the opportunity to do so, this may lead to failure of the release. To resolve this, you may run `gpg --sign xxx` in any file. This will allow it to remember the password for long enough to prepare for the release._ 
 
 ## Stage the release 
-```
-./mvnw release:perform -Dmaven.test.skip -Pall
+
+```shell
+./gradlew publish
 ```
 
 - The release will be automatically inserted into a temporary staging repository.

@@ -119,8 +119,8 @@ public class DefaultScopeDefine {
         }
 
         @Override
-        public void notify(Class originalClass) {
-            ScopeDeclaration declaration = (ScopeDeclaration) originalClass.getAnnotation(ScopeDeclaration.class);
+        public void notify(Class<?> originalClass) {
+            ScopeDeclaration declaration = originalClass.getAnnotation(ScopeDeclaration.class);
             if (declaration != null) {
                 addNewScope(declaration, originalClass);
             }
@@ -133,7 +133,7 @@ public class DefaultScopeDefine {
      * @param declaration   includes the definition.
      * @param originalClass represents the class having the {@link ScopeDeclaration} annotation
      */
-    private static final void addNewScope(ScopeDeclaration declaration, Class originalClass) {
+    private static void addNewScope(ScopeDeclaration declaration, Class<?> originalClass) {
         int id = declaration.id();
         if (ID_2_NAME.containsKey(id)) {
             throw new UnexpectedException(
@@ -156,7 +156,7 @@ public class DefaultScopeDefine {
 
         List<ScopeDefaultColumn> scopeDefaultColumns = new ArrayList<>();
 
-        ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = (ScopeDefaultColumn.VirtualColumnDefinition) originalClass
+        ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = originalClass
             .getAnnotation(ScopeDefaultColumn.VirtualColumnDefinition.class);
         if (virtualColumn != null) {
             scopeDefaultColumns.add(

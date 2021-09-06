@@ -34,27 +34,27 @@ import org.mockito.ArgumentCaptor;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class NacosCoordinatorTest {
-    private NamingService namingService = mock(NamingService.class);
-    private ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
+    private final NamingService namingService = mock(NamingService.class);
+    private final ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
     private NacosCoordinator coordinator;
-    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
-    private Address remoteAddress = new Address("10.0.0.1", 1000, false);
-    private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
+    private final HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
+    private final Address remoteAddress = new Address("10.0.0.1", 1000, false);
+    private final Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
-    private Address internalAddress = new Address("10.0.0.3", 1002, false);
+    private final Address internalAddress = new Address("10.0.0.3", 1002, false);
 
     private static final String SERVICE_NAME = "test-service";
 
     @Before
-    public void setUp() throws NacosException {
+    public void setUp() {
         doNothing().when(healthChecker).health();
         nacosConfig.setServiceName(SERVICE_NAME);
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);

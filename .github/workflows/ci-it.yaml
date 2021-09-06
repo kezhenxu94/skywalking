@@ -76,11 +76,10 @@ jobs:
           distribution: adopt
       - name: Build and Test
         if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu'
-        run: |
-          ./mvnw -q --batch-mode -P"backend,ui,dist,CI-with-IT" clean verify install javadoc:javadoc
+        run: ./gradlew build --parallel
       - name: Build and Test
         if: env.SKIP_CI != 'true' && matrix.os != 'ubuntu'
-        run: ./mvnw -q --batch-mode -P"backend,ui,dist" clean verify install
+        run: ./gradlew build --parallel
       - uses: actions/upload-artifact@v2
         if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu' && matrix.java-version == '8'
         name: Upload Agent

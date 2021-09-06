@@ -41,7 +41,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
     "address"
-})
+}, callSuper = false)
 public class NetworkAddressAlias extends Metrics {
     public static final String INDEX_NAME = "network_address_alias";
     private static final String ADDRESS = "address";
@@ -72,7 +72,7 @@ public class NetworkAddressAlias extends Metrics {
         this.representServiceId = alias.getRepresentServiceId();
         this.representServiceInstanceId = alias.getRepresentServiceInstanceId();
         this.lastUpdateTimeBucket = alias.getLastUpdateTimeBucket();
-        /**
+        /*
          * Keep the time bucket as the same time inserted.
          */
         if (this.getTimeBucket() > metrics.getTimeBucket()) {

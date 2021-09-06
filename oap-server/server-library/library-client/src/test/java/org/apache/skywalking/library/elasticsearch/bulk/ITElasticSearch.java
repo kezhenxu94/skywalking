@@ -18,7 +18,6 @@
 package org.apache.skywalking.library.elasticsearch.bulk;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,6 +48,7 @@ import org.testcontainers.utility.DockerImageName;
 @Slf4j
 @RequiredArgsConstructor
 @RunWith(Parameterized.class)
+@SuppressWarnings("unchecked")
 public class ITElasticSearch {
 
     @Parameterized.Parameters(name = "version: {0}, namespace: {1}")
@@ -69,7 +69,7 @@ public class ITElasticSearch {
     private ElasticSearchClient client;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         server = new ElasticsearchContainer(
             DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
                            .withTag(version)
@@ -86,9 +86,13 @@ public class ITElasticSearch {
     }
 
     @After
-    public void after() throws IOException {
-        client.shutdown();
-        server.stop();
+    public void after() {
+        if (client != null) {
+            client.shutdown();
+        }
+        if (server != null) {
+            server.stop();
+        }
     }
 
     @Test
@@ -110,7 +114,7 @@ public class ITElasticSearch {
         client.createIndex(indexName, mappings, settings);
         Assert.assertTrue(client.isExistsIndex(indexName));
 
-        Index index = client.getIndex(indexName).get();
+        Index index = client.getIndex(indexName).orElseThrow(RuntimeException::new);
         log.info(index.toString());
 
         Assert.assertEquals(
@@ -142,14 +146,16 @@ public class ITElasticSearch {
         client.forceInsert(indexName, id, builder);
 
         Optional<Document> response = client.get(indexName, id);
-        Assert.assertEquals("kimchy", response.get().getSource().get("user"));
+        Assert.assertEquals("kimchy", response.orElseThrow(RuntimeException::new)
+                                              .getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
 
         builder = ImmutableMap.<String, Object>builder().put("user", "pengys").build();
         client.forceUpdate(indexName, id, builder);
 
         response = client.get(indexName, id);
-        Assert.assertEquals("pengys", response.get().getSource().get("user"));
+        Assert.assertEquals("pengys", response.orElseThrow(RuntimeException::new)
+                                              .getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
 
         SearchBuilder sourceBuilder = Search.builder();
@@ -188,7 +194,7 @@ public class ITElasticSearch {
 
         Map<String, Object> builder = ImmutableMap.of("name", "pengys");
         client.forceInsert(indexName + "-2019", "testid", builder);
-        Index index = client.getIndex(indexName + "-2019").get();
+        Index index = client.getIndex(indexName + "-2019").orElseThrow(RuntimeException::new);
         log.info(index.toString());
 
         Assert.assertEquals(

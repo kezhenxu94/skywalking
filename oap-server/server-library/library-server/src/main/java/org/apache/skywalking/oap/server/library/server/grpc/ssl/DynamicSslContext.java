@@ -63,6 +63,7 @@ public class DynamicSslContext extends AbstractSslContext {
         }
     }
 
+    @Override
     protected void updateContext(final String privateKeyFile, final String certChainFile, final String trustedCAsFile) {
         try (InputStream cert = new FileInputStream(Paths.get(certChainFile).toFile());
              InputStream key = PrivateKeyUtil.loadDecryptionKey(privateKeyFile)) {

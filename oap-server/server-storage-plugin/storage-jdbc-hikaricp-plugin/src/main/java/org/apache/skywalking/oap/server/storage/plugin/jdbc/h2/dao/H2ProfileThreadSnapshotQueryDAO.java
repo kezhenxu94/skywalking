@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
-    private JDBCHikariCPClient h2Client;
+    private final JDBCHikariCPClient h2Client;
 
     public H2ProfileThreadSnapshotQueryDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
@@ -87,7 +87,9 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), segments.toArray(new String[segments.size()]))) {
+                connection, sql.toString(),
+                (Object[]) segments.toArray(new String[0])
+            )) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -218,7 +220,7 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), params)) {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     return resultSet.getInt(1);
                 }
             }

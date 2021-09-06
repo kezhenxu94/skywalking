@@ -60,7 +60,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     private final GRPCExporterSetting setting;
     private final MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
     private final MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
-    private final DataCarrier exportBuffer;
+    private final DataCarrier<ExportData> exportBuffer;
     private final ReentrantLock fetchListLock;
     private volatile List<SubscriptionMetric> subscriptionList;
     private volatile long lastFetchTimestamp = 0;
@@ -72,7 +72,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         ManagedChannel channel = client.getChannel();
         exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);
         blockingStub = MetricExportServiceGrpc.newBlockingStub(channel);
-        exportBuffer = new DataCarrier<ExportData>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
+        exportBuffer = new DataCarrier<>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
         exportBuffer.consume(this, 1, 200);
         subscriptionList = new ArrayList<>();
         fetchListLock = new ReentrantLock();
@@ -180,7 +180,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             MetricsMetaInfo meta = row.getMeta();
             builder.setMetricName(meta.getMetricsName());
             builder.setEventType(
-                EventType.INCREMENT.equals(row.getEventType()) ? EventType.INCREMENT : EventType.TOTAL);
+                EventType.INCREMENT.name().equals(row.getEventType().name()) ? EventType.INCREMENT : EventType.TOTAL);
             String entityName = getEntityName(meta);
             if (entityName == null) {
                 return;
@@ -204,7 +204,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             try {
                 sleepTime += cycle;
                 Thread.sleep(cycle);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
 
             if (sleepTime > 2000L) {

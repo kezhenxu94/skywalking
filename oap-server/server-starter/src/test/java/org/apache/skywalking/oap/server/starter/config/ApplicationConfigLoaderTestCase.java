@@ -53,6 +53,7 @@ public class ApplicationConfigLoaderTestCase {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testLoadListTypeConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("receiver_zipkin")
                 .getProviderConfiguration("default");

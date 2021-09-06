@@ -25,5 +25,5 @@ public interface AnnotationListener {
 
     Class<? extends Annotation> annotation();
 
-    void notify(Class aClass) throws StorageException;
+    void notify(Class<?> aClass) throws StorageException;
 }

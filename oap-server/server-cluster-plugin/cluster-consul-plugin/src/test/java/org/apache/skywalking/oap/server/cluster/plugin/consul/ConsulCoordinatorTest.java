@@ -48,20 +48,20 @@ import static org.mockito.Mockito.when;
 
 public class ConsulCoordinatorTest {
 
-    private Consul consul = mock(Consul.class);
+    private final Consul consul = mock(Consul.class);
 
-    private ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
+    private final ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
 
     private ConsulCoordinator coordinator;
-    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
+    private final HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
     private ConsulResponse<List<ServiceHealth>> consulResponse;
 
-    private Address remoteAddress = new Address("10.0.0.1", 1000, false);
-    private Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
+    private final Address remoteAddress = new Address("10.0.0.1", 1000, false);
+    private final Address selfRemoteAddress = new Address("10.0.0.2", 1001, true);
 
-    private Address internalAddress = new Address("10.0.0.3", 1002, false);
+    private final Address internalAddress = new Address("10.0.0.3", 1002, false);
 
-    private AgentClient agentClient = mock(AgentClient.class);
+    private final AgentClient agentClient = mock(AgentClient.class);
 
     private static final String SERVICE_NAME = "my-service";
 
@@ -71,6 +71,7 @@ public class ConsulCoordinatorTest {
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new ConsulCoordinator(manager, consulConfig, consul);
         Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
+        // noinspection unchecked
         consulResponse = mock(ConsulResponse.class);
 
         HealthClient healthClient = mock(HealthClient.class);

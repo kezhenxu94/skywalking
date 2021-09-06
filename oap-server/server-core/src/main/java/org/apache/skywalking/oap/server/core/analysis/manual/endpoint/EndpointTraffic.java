@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";

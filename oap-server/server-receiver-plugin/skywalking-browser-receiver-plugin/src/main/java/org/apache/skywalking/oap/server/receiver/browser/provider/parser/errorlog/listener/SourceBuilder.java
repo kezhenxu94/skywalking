@@ -62,7 +62,6 @@ class SourceBuilder {
     @Getter
     private BrowserAppTrafficCategory trafficCategory;
 
-    @Setter
     @Getter
     private BrowserErrorCategory errorCategory;
 

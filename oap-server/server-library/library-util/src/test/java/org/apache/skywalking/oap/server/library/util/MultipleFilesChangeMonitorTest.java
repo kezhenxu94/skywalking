@@ -22,63 +22,62 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import org.awaitility.Duration;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.awaitility.Awaitility.await;
+
 public class MultipleFilesChangeMonitorTest {
-    private static String FILE_NAME = "FileChangeMonitorTest.tmp";
+    private static final String FILE_NAME = "FileChangeMonitorTest.tmp";
 
     @Test
-    public void test() throws InterruptedException, IOException {
+    public void test() throws IOException {
         StringBuilder content = new StringBuilder();
         MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-            1, new MultipleFilesChangeMonitor.FilesChangedNotifier() {
-
-            @Override
-            public void filesChanged(final List<byte[]> readableContents) {
+            1, readableContents -> {
                 Assert.assertEquals(2, readableContents.size());
                 Assert.assertNull(readableContents.get(1));
-                try {
-                    content.delete(0, content.length());
-                    content.append(new String(readableContents.get(0), 0, readableContents.get(0).length, "UTF-8"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
+            content.delete(0, content.length());
+            content.append(new String(readableContents.get(0), 0, readableContents.get(0).length,
+                                      StandardCharsets.UTF_8
+            ));
         }, FILE_NAME, "XXXX_NOT_EXIST.SW");
 
         monitor.start();
 
-        File file = new File(FILE_NAME);
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-        bos.write("test context".getBytes(Charset.forName("UTF-8")));
-        bos.flush();
-        bos.close();
+        final AtomicReference<File> file = new AtomicReference<>(new File(FILE_NAME));
+        final AtomicReference<BufferedOutputStream> bos =
+            new AtomicReference<>(new BufferedOutputStream(new FileOutputStream(file.get())));
+        bos.get().write("test context".getBytes(StandardCharsets.UTF_8));
+        bos.get().flush();
+        bos.get().close();
 
-        int countDown = 40;
-        boolean notified = false;
-        boolean notified2 = false;
-        while (countDown-- > 0) {
-            if ("test context".equals(content.toString())) {
-                file = new File(FILE_NAME);
-                bos = new BufferedOutputStream(new FileOutputStream(file));
-                bos.write("test context again".getBytes(Charset.forName("UTF-8")));
-                bos.flush();
-                bos.close();
-                notified = true;
-            } else if ("test context again".equals(content.toString())) {
-                notified2 = true;
-                break;
-            }
-            Thread.sleep(500);
-        }
-        Assert.assertTrue(notified);
-        Assert.assertTrue(notified2);
+        AtomicBoolean notified = new AtomicBoolean();
+        AtomicBoolean notified2 = new AtomicBoolean();
+        await().atMost(Duration.TWO_MINUTES)
+               .pollInterval(Duration.TWO_SECONDS)
+               .untilAsserted(() -> {
+                   if ("test context".equals(content.toString())) {
+                       file.set(new File(FILE_NAME));
+                       bos.set(new BufferedOutputStream(new FileOutputStream(file.get())));
+                       bos.get().write("test context again".getBytes(StandardCharsets.UTF_8));
+                       bos.get().flush();
+                       bos.get().close();
+                       notified.set(true);
+                   } else if ("test context again".equals(content.toString())) {
+                       notified2.set(true);
+                   }
+                   Thread.sleep(500);
+                   Assert.assertTrue(notified.get());
+                   Assert.assertTrue(notified2.get());
+               });
+
     }
 
     @BeforeClass

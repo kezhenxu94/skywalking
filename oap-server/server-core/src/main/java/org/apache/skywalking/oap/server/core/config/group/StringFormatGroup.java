@@ -68,13 +68,6 @@ public class StringFormatGroup {
         return new FormatResult(false, string);
     }
 
-    @Override
-    public String toString() {
-        return "StringFormatGroup{" +
-            "rules=" + rules +
-            '}';
-    }
-
     @RequiredArgsConstructor
     @Getter
     public static class FormatResult {

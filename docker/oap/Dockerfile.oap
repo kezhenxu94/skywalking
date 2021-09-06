@@ -33,7 +33,7 @@ ARG DIST
 COPY "$DIST" .
 
 RUN set -ex; \
-    tar -xzf "$DIST" --strip 1; \
+    tar -xf "$DIST" --strip 1; \
     rm -rf "$DIST"; \
     rm -rf "config/log4j2.xml"; \
     rm -rf "bin"; \

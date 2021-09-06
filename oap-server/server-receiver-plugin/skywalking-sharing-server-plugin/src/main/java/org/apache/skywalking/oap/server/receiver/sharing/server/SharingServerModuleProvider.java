@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
+import com.google.common.base.Strings;
 import java.util.Objects;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
@@ -80,7 +80,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
                                      config.getRestAcceptorPriorityDelta())
                                  .jettyIdleTimeOut(config.getRestIdleTimeOut())
                                  .jettyHttpMaxRequestHeaderSize(config.getHttpMaxRequestHeaderSize()).build();
-            jettyServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
+            jettyServerConfig.setHost(Strings.isNullOrEmpty(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
             jettyServerConfig.setPort(config.getRestPort());
             jettyServerConfig.setContextPath(config.getRestContextPath());
 
@@ -100,7 +100,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
         if (config.getGRPCPort() != 0) {
             if (config.isGRPCSslEnabled()) {
                 grpcServer = new GRPCServer(
-                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    Strings.isNullOrEmpty(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                     config.getGRPCPort(),
                     config.getGRPCSslCertChainPath(),
                     config.getGRPCSslKeyPath(),
@@ -108,7 +108,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
                 );
             } else {
                 grpcServer = new GRPCServer(
-                    Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                    Strings.isNullOrEmpty(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                     config.getGRPCPort()
                 );
             }

@@ -28,15 +28,15 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 /**
  * BaseMetrics parent class represents the metrics
  */
-public abstract class BaseMetrics<T extends SimpleCollector, C> {
-    private static Map<String, Object> ALL_METRICS = new HashMap<>();
+public abstract class BaseMetrics<T extends SimpleCollector<?>, C> {
+    private static final Map<String, Object> ALL_METRICS = new HashMap<>();
 
     private volatile C metricsInstance;
     protected final String name;
     protected final String tips;
     protected final MetricsTag.Keys labels;
     protected final MetricsTag.Values values;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
 
     public BaseMetrics(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values) {
         this.name = name;
@@ -55,6 +55,7 @@ public abstract class BaseMetrics<T extends SimpleCollector, C> {
      *
      * @return metric reference if the service instance id has been initialized. Or NULL.
      */
+    @SuppressWarnings("unchecked")
     protected C getMetric() {
         if (metricsInstance == null) {
             if (isIDReady()) {

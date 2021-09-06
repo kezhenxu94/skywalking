@@ -17,24 +17,18 @@
 SHELL := /bin/bash -o pipefail
 
 SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-CONTEXT ?= ${SW_ROOT}/dist
+CONTEXT ?= ${SW_ROOT}/build/distributions
 SKIP_TEST ?= false
-DIST ?= apache-skywalking-apm-bin.tar.gz
+DIST ?= apache-skywalking-apm-bin.tar
 CLI_VERSION ?= 0.9.0 # CLI version inside OAP image should always use an Apache released artifact.
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.backend build.ui build.docker
+.PHONY: build.all docker.all
 
 build.all:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
-
-build.backend:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,dist
-
-build.ui:
-	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
+	cd $(SW_ROOT) && ./gradlew distTar $([[ "$SKIP_TEST" == "true" ]] && echo '-x test') --parallel
 
 DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 
@@ -102,5 +96,3 @@ $(foreach TGT,$(DOCKER_TARGETS),$(eval DOCKER_PUSH_TARGETS+=push.$(TGT)))
 
 # Will build and push docker images.
 docker.push: $(DOCKER_PUSH_TARGETS)
-
-

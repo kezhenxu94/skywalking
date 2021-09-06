@@ -64,6 +64,7 @@ public class ITClusterEtcdPluginTest {
         new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
             .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
             .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
+            .withExposedPorts(2379)
             .withCommand(
                 "etcd",
                 "--advertise-client-urls", "http://0.0.0.0:2379",

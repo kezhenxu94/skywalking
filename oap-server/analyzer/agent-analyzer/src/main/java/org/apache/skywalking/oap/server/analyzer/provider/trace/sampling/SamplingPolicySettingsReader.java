@@ -32,7 +32,7 @@ import java.util.Objects;
  * SamplingPolicySettings}.
  */
 public class SamplingPolicySettingsReader {
-    private Map yamlData;
+    private final Map<String, Object> yamlData;
 
     public SamplingPolicySettingsReader(InputStream inputStream) {
         Yaml yaml = new Yaml(new SafeConstructor());
@@ -56,6 +56,7 @@ public class SamplingPolicySettingsReader {
         return samplingPolicySettings;
     }
 
+    @SuppressWarnings("unchecked")
     private void readDefaultSamplingPolicy(SamplingPolicySettings samplingPolicySettings) {
         Map<String, Object> objectMap = (Map<String, Object>) yamlData.get("default");
         if (objectMap == null) {
@@ -69,8 +70,9 @@ public class SamplingPolicySettingsReader {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void readServicesSamplingPolicy(SamplingPolicySettings samplingPolicySettings) {
-        Map<String, Object> objectMap = (Map<String, Object>) yamlData;
+        Map<String, Object> objectMap = yamlData;
         Object servicesObject = objectMap.get("services");
         if (servicesObject != null) {
             List<Map<String, Object>> serviceList = (List<Map<String, Object>>) servicesObject;

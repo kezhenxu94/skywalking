@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.module;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.Properties;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class KafkaFetcherConfig extends ModuleConfig {
 
     /**

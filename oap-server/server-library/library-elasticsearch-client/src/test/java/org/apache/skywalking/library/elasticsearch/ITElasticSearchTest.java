@@ -59,18 +59,21 @@ public class ITElasticSearchTest {
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
                                    .withTag("6.3.2"))
+                    .withExposedPorts(9200)
             },
             {
                 "ElasticSearch 7.4.2",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
                                    .withTag("7.4.2"))
+                    .withExposedPorts(9200)
             },
             {
                 "ElasticSearch 7.8.0",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
                                    .withTag("7.8.0"))
+                    .withExposedPorts(9200)
             },
             {
                 "ElasticSearch 7.15.0",
@@ -79,6 +82,7 @@ public class ITElasticSearchTest {
                                    .withTag("7.15.0")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                    .withExposedPorts(9200)
             },
             {
                 "OpenSearch 1.0.0",
@@ -88,6 +92,7 @@ public class ITElasticSearchTest {
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
+                    .withExposedPorts(9200)
             }
         });
     }

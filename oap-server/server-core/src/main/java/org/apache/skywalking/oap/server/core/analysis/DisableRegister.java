@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
  */
 public class DisableRegister implements AnnotationListener {
     public static DisableRegister INSTANCE = new DisableRegister();
-    private Set<String> disableEntitySet = new HashSet<>();
+    private final Set<String> disableEntitySet = new HashSet<>();
 
     private DisableRegister() {
     }
@@ -39,8 +39,8 @@ public class DisableRegister implements AnnotationListener {
     }
 
     @Override
-    public void notify(Class aClass) {
-        MultipleDisable annotation = (MultipleDisable) aClass.getAnnotation(MultipleDisable.class);
+    public void notify(Class<?> aClass) {
+        MultipleDisable annotation = aClass.getAnnotation(MultipleDisable.class);
         Disable[] valueList = annotation.value();
         if (valueList != null) {
             for (Disable disable : valueList) {
@@ -64,8 +64,8 @@ public class DisableRegister implements AnnotationListener {
         }
 
         @Override
-        public void notify(Class aClass) {
-            String name = ((Disable) aClass.getAnnotation(Disable.class)).value();
+        public void notify(Class<?> aClass) {
+            String name = aClass.getAnnotation(Disable.class).value();
             DisableRegister.INSTANCE.disableEntitySet.add(name);
         }
     }

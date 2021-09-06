@@ -58,7 +58,8 @@ public class ITClusterModuleZookeeperProviderFunctionalTest {
     @Rule
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
-            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1));
+            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1))
+            .withExposedPorts(2181);
 
     @Mock
     private ModuleManager moduleManager;

@@ -39,6 +39,7 @@ public class ModuleProviderTesting implements ModuleServiceHolder {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Service> T getService(Class<T> serviceType) throws ServiceNotProvidedException {
         return (T) services.get(serviceType);
     }

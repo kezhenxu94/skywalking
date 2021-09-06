@@ -62,7 +62,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
             .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
-            .withEnv(Collections.singletonMap("MODE", "standalone"));
+            .withEnv(Collections.singletonMap("MODE", "standalone"))
+            .withExposedPorts(8848);
 
     @Mock
     private ModuleManager moduleManager;

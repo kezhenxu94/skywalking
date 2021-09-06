@@ -1,7 +1,10 @@
-/build/
+build/
+out
 target/
 .idea/
 *.iml
+*.ipr
+*.iws
 .classpath
 .project
 .settings/
@@ -11,10 +14,10 @@ packages/
 **/dependency-reduced-pom.xml
 **/dist/
 /docker/snapshot/*.gz
-.mvn/wrapper/*.jar
 OALLexer.tokens
 .factorypath
 .vscode
 .checkstyle
 .externalToolBuilders
 oap-server/oal-grammar/**/gen/
+.gradle

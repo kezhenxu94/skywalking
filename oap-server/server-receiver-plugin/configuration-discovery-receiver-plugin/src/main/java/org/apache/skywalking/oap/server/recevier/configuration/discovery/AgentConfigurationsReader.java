@@ -34,26 +34,26 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  */
 @Slf4j
 public class AgentConfigurationsReader {
-    private Map yamlData;
+    private final Map<String, Object> yamlData;
 
     public AgentConfigurationsReader(InputStream inputStream) {
         Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(inputStream);
+        yamlData = yaml.load(inputStream);
     }
 
     public AgentConfigurationsReader(Reader io) {
         Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(io);
+        yamlData = yaml.load(io);
     }
 
     public AgentConfigurationsTable readAgentConfigurationsTable() {
         AgentConfigurationsTable agentConfigurationsTable = new AgentConfigurationsTable();
         try {
             if (Objects.nonNull(yamlData)) {
-                Map configurationsData = (Map) yamlData.get("configurations");
+                Map<?, ?> configurationsData = (Map<?, ?>) yamlData.get("configurations");
                 if (configurationsData != null) {
                     configurationsData.forEach((k, v) -> {
-                        Map map = (Map) v;
+                        Map<?, ?> map = (Map<?, ?>) v;
                         StringBuilder serviceConfigStr = new StringBuilder();
                         Map<String, String> config = new HashMap<>(map.size());
                         map.forEach((key, value) -> {

@@ -1,0 +1,41 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+dependencies {
+    implementation project(':receiver-proto')
+    implementation project(':apm-util')
+    implementation project(':apm-network')
+    implementation project(':library-util')
+    implementation project(':library-module')
+    implementation project(':meter-analyzer')
+    implementation project(':log-analyzer')
+    implementation project(':skywalking-mesh-receiver-plugin')
+    implementation project(':skywalking-sharing-server-plugin')
+    implementation project(':server-core')
+    implementation project(':telemetry-api')
+
+    implementation libs.kubernetes.client.java
+    implementation libs.commons.beanutils
+    implementation libs.flatbuffers.java
+    implementation libs.protobuf.java.util
+    implementation libs.grpc.protobuf
+    implementation libs.grpc.stub
+    implementation libs.slf4j.log4j12
+}
+

@@ -1,0 +1,95 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Apache SkyWalking'
+                description = 'Application Performance Monitoring System'
+                url = 'https://skywalking.apache.org'
+                version = version
+                organization {
+                    name = 'The Apache Software Foundation'
+                    url = 'https://www.apache.org'
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/apache/skywalking'
+                    connection = 'scm:git:https://github.com/apache/skywalking.git'
+                    developerConnection = 'scm:git:https://github.com/apache/skywalking.git'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/apache/skywalking/issues'
+                }
+                mailingLists {
+                    mailingList {
+                        name = 'SkyWalking Developer'
+                        post = 'dev@skywalking.apache.org'
+                        subscribe = 'dev-subscribe@skywalking.apache.org'
+                        unsubscribe = 'dev-unsubscribe@skywalking.apache.org'
+                    }
+                    mailingList {
+                        name = 'SkyWalking Commits'
+                        post = 'commits@skywalking.apache.org'
+                        subscribe = 'commits-subscribe@skywalking.apache.org'
+                        unsubscribe = 'commits-unsubscribe@skywalking.apache.org'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def isSnapshot = version.endsWith('SNAPSHOT')
+            def snapshotsRepoUrl = 'https://repository.apache.org/content/repositories/snapshots'
+            def releasesRepoUrl = 'https://repository.apache.org/service/local/staging/deploy/maven2'
+            if (project.hasProperty('repoUrl')) {
+                snapshotsRepoUrl = property('repoUrl')
+                releasesRepoUrl = property('repoUrl')
+            }
+            if (project.hasProperty('snapshotsRepoUrl')) {
+                snapshotsRepoUrl = property('snapshotsRepoUrl')
+            }
+            if (project.hasProperty('releasesRepoUrl')) {
+                releasesRepoUrl = property('releasesRepoUrl')
+            }
+
+            name = isSnapshot ? 'snapshot' : 'release'
+            url = isSnapshot ? snapshotsRepoUrl : releasesRepoUrl
+            credentials(PasswordCredentials)
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.maven
+}

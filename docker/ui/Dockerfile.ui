@@ -28,7 +28,7 @@ RUN set -ex; \
 ARG DIST
 COPY "$DIST" .
 
-RUN tar -xzf "$DIST" --strip 1; \
+RUN tar -xf "$DIST" --strip 1; \
     rm -rf "$DIST"; \
     rm -rf "config"; \
     rm -rf "bin"; \

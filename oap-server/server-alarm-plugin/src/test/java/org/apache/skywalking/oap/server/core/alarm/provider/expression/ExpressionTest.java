@@ -43,7 +43,7 @@ public class ExpressionTest {
     @Test
     public void testEval() {
         String expr = " a && b ";
-        Map<String, Object> dataMap = new HashMap();
+        Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("a", Boolean.TRUE);
         Object flag = expression.eval(expr, dataMap);
         assertNull(flag);

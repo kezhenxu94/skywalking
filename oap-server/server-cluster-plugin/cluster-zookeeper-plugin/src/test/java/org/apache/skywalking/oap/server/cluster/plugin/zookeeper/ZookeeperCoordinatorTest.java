@@ -33,7 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -42,21 +42,21 @@ import static org.mockito.Mockito.when;
 
 public class ZookeeperCoordinatorTest {
 
-    private ClusterModuleZookeeperConfig config = new ClusterModuleZookeeperConfig();
+    private final ClusterModuleZookeeperConfig config = new ClusterModuleZookeeperConfig();
 
-    private ServiceDiscovery<RemoteInstance> serviceDiscovery = mock(ServiceDiscovery.class);
+    private final ServiceDiscovery<RemoteInstance> serviceDiscovery = mock(ServiceDiscovery.class);
 
-    private ServiceCacheBuilder cacheBuilder = mock(ServiceCacheBuilder.class);
+    private final ServiceCacheBuilder cacheBuilder = mock(ServiceCacheBuilder.class);
 
-    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
+    private final HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
 
-    private ServiceCache serviceCache = mock(ServiceCache.class);
+    private final ServiceCache serviceCache = mock(ServiceCache.class);
 
     private ZookeeperCoordinator coordinator;
 
-    private Address address = new Address("127.0.0.2", 10001, false);
+    private final Address address = new Address("127.0.0.2", 10001, false);
 
-    private Address selfAddress = new Address("127.0.0.1", 1000, true);
+    private final Address selfAddress = new Address("127.0.0.1", 1000, true);
 
     @Before
     public void setUp() throws Exception {
@@ -96,7 +96,7 @@ public class ZookeeperCoordinatorTest {
         ServiceInstance<RemoteInstance> serviceInstance = argumentCaptor.getValue();
 
         assertEquals("remote", serviceInstance.getName());
-        assertTrue(!Strings.isNullOrEmpty(serviceInstance.getId()));
+        assertFalse(Strings.isNullOrEmpty(serviceInstance.getId()));
         assertEquals(address.getHost(), serviceInstance.getAddress());
         assertEquals(address.getPort(), serviceInstance.getPort().intValue());
 

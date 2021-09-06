@@ -68,7 +68,6 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
      * @param service  service's name
      * @param sample   sample rate of trace segment
      * @param duration duration of trace segment
-     * @return
      */
     public boolean shouldSample(String service, int sample, int duration) {
         SamplingPolicy samplingPolicy = this.samplingPolicySettings.get().get(service);
@@ -84,7 +83,6 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
      *
      * @param sample   sample rate of trace segment
      * @param duration duration of trace segment
-     * @return
      */
     private boolean shouldSampleByDefault(int sample, int duration) {
         return isOverDefaultSlowThreshold(duration) || withinDefaultRateRange(sample);
@@ -102,7 +100,6 @@ public class TraceSamplingPolicyWatcher extends ConfigChangeWatcher {
      * @param samplingPolicy the sampling policy of the specific service
      * @param sample         sample rate of trace segment
      * @param duration       duration of trace segment
-     * @return
      */
     private boolean shouldSampleService(SamplingPolicy samplingPolicy, int sample, int duration) {
         return (samplingPolicy.getDuration() != null && isOverSlowThreshold(duration, samplingPolicy.getDuration()))

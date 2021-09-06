@@ -40,6 +40,7 @@ public abstract class MockModuleProvider implements ModuleServiceHolder {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Service> T getService(final Class<T> serviceType) throws ServiceNotProvidedException {
         return (T) serviceMap.get(serviceType);
     }

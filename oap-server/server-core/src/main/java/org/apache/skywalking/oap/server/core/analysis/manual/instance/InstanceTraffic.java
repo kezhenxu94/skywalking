@@ -44,7 +44,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @EqualsAndHashCode(of = {
     "serviceId",
     "name"
-})
+}, callSuper = false)
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";

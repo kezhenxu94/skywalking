@@ -154,6 +154,7 @@ public class ConfigmapConfigWatcherRegisterTest {
         Assert.assertEquals(groupConfigTable.getGroupItems().get(0).getItems().size(), 3);
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, String> readMockConfigMapData() throws FileNotFoundException {
         Reader configmapReader1 = ResourceUtils.read("skywalking-dynamic-configmap.example.yaml");
         Reader configmapReader2 = ResourceUtils.read("skywalking-group-dynamic-configmap.example-serviceA.yaml");

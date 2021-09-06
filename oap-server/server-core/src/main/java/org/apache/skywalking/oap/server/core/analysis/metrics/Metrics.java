@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @EqualsAndHashCode(of = {
     "timeBucket"
-})
+}, callSuper = false)
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";

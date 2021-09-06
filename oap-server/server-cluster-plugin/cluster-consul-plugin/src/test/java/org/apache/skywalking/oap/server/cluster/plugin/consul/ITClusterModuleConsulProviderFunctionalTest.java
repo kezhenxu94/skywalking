@@ -62,6 +62,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
     @Rule
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("consul:0.9"))
+            .withExposedPorts(8500)
             .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
             .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
 

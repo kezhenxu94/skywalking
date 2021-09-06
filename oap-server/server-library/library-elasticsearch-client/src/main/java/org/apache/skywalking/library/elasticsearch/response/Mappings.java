@@ -41,5 +41,6 @@ public final class Mappings {
 
     @Getter
     @Setter
+    @Builder.Default
     private Map<String, Object> properties = new HashMap<>();
 }

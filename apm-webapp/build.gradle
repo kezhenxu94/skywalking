@@ -1,0 +1,70 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.5.4")
+        classpath "com.github.node-gradle:gradle-node-plugin:3.1.1"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.github.node-gradle.node'
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway:3.0.3'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer:3.0.3'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:2.5.4"
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
+    implementation libs.jackson.databind
+    implementation libs.gson
+    implementation libs.hc.httpclient
+    implementation libs.snakeyaml
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test:2.5.4"
+}
+
+node {
+    version = '8.17.0'
+    download = true
+    nodeProjectDir = file("${rootDir}/skywalking-ui")
+}
+
+task buildUi(type: NpmTask) {
+    dependsOn tasks.npmInstall
+    args = ['run', 'build']
+}
+
+task copyWeb(type: Copy) {
+    dependsOn buildUi
+    from "${rootDir}/skywalking-ui/dist"
+    into layout.buildDirectory.dir('resources/main/public')
+}
+//
+//tasks.jar.dependsOn tasks.copyWeb
+//tasks.bootJar.dependsOn tasks.copyWeb
+//tasks.bootJarMainClassName.dependsOn tasks.copyWeb
+afterEvaluate {
+    copyWeb
+}

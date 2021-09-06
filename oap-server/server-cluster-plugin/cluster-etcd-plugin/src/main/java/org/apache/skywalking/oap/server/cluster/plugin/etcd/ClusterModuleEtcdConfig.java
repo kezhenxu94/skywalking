@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 import com.google.common.base.Strings;
 import java.util.Arrays;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class ClusterModuleEtcdConfig extends ModuleConfig {
     private String serviceName;
     private String endpoints;

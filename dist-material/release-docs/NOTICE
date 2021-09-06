@@ -460,12 +460,12 @@ provides utilities for the java.lang API, which can be obtained at:
     * https://commons.apache.org/proper/commons-lang/
 
 
-This product contains the Maven wrapper scripts from 'Maven Wrapper', that provides an easy way to ensure a user has everything necessary to run the Maven build.
+This product contains the Gradle wrapper scripts from 'Gradle Wrapper', that provides an easy way to ensure a user has everything necessary to run the Gradle build.
 
   * LICENSE:
-    * license/LICENSE.mvn-wrapper.txt (Apache License 2.0)
+    * Standard Apache License 2.0
   * HOMEPAGE:
-    * https://github.com/takari/maven-wrapper
+    * https://docs.gradle.org/current/userguide/gradle_wrapper.html
 
 ========================================================================
 
