@@ -1,0 +1,146 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: E2E
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 18 * * *'
+
+env:
+  SKIP_TEST: true
+  TAG: ${{ github.sha }}
+  SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk11:alpine-jre
+  SW_KUBERNETES_COMMIT_SHA: 6d5897616ce30ebb1706c0cf566ac36f733d93e0
+
+concurrency:
+  group: e2e-istio-v2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  als:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        analyzer: [ k8s-mesh, mx-mesh ]
+        istio_version: [ 1.7.1, 1.8.2, 1.9.1 ]
+    name: Istio(${{ matrix.istio_version }})+ALS(${{ matrix.analyzer }})
+    env:
+      ISTIO_VERSION: ${{ matrix.istio_version }}
+      ALS_ANALYZER: ${{ matrix.analyzer }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Run E2E Test
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/infra-e2e-test
+        with:
+          config-file: istio/als/e2e.yaml
+
+  metrics-service:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        istio_version: [1.8.2, 1.9.1]
+    name: Istio(${{ matrix.istio_version }})+MetricsService
+    env:
+      ISTIO_VERSION: ${{ matrix.istio_version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Run E2E Test
+        if: env.SKIP_CI != 'true'
+        uses: ./.github/actions/infra-e2e-test
+        with:
+          config-file: istio/metrics/e2e.yaml
+
+  kind-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    name: kind_test
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set Skip Env Var
+        uses: ./.github/actions/skip
+      - name: Kind Test
+        shell: bash
+        run: |
+          # create a cluster with the local registry enabled in containerd
+          cat <<EOF | kind create cluster --config=-
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          nodes:
+          - role: control-plane
+          - role: worker
+          - role: worker
+          - role: worker
+          EOF
+
+          echo "kubectl get nodes --all-namespaces -o wide"
+          kubectl get nodes --all-namespaces -o wide
+          echo "--------------------------------"
+          echo "kubectl get pods -A -o wide"
+          kubectl get pods -A -o wide
+          echo "--------------------------------"
+          kubectl get nodes|grep kind |awk -F " " 'system("echo \"kubectl describe node \""$1" && kubectl describe node "$1" && echo --------------------------------")'
+
+          export ISTIO_VERSION=1.9.1
+          istioctl version || (curl -L https://istio.io/downloadIstio | sh - && sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/)
+          istioctl install -y --set profile=demo
+      - name: pod info
+        shell: bash
+        run: kubectl get pods -A
+
+  kind-test1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    name: kind_test1
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: setup kind
+        uses: engineerd/setup-kind@v0.5.0
+      - name: test
+        shell: bash
+        run: |
+          echo "environment-kubeconfig:" ${KUBECONFIG}
+          echo "kubectl get nodes --all-namespaces -o wide"
+          kubectl get nodes --all-namespaces -o wide
+          echo "--------------------------------"
+          kubectl get nodes |awk -F " " 'system("echo \"kubectl describe node \""$1" && kubectl describe node "$1" && echo --------------------------------")'
+          ISTIO_VERSION=1.9.1
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+
+          sleep 3
+          kubectl wait --for=condition=Ready pods --all --timeout=1200s
+          kubectl get pods -A -o wide --show-labels
+          kubectl get rs -A

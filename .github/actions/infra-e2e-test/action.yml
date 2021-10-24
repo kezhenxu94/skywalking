@@ -55,6 +55,6 @@ runs:
       with:
         go-version: '1.16'
     - name: Run E2E Test
-      uses: apache/skywalking-infra-e2e@main
+      uses: mrproliu/skywalking-infra-e2e@cleanup-with-steps
       with:
         e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/${{ inputs.config-file }}
