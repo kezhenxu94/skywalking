@@ -90,7 +90,107 @@ cleanup:
     - name: show kubectl
       command: kubectl get pods -A -o wide
     - name: run result
-      command: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+      command: |
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::productpage"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::productpage
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::reviews"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::reviews
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_sla --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_sla --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_cpm --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_cpm --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_resp_time --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_resp_time --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_apdex --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_apdex --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_sla --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_sla --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_cpm --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_cpm --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_resp_time --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_resp_time --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_apdex --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_apdex --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_resp_time --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_resp_time --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_cpm --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_cpm --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_sla --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_sla --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_resp_time --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_resp_time --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_cpm --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_cpm --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_sla --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_sla --service-name=e2e::reviews --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_cpm --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_cpm --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_avg --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_avg --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_sla --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_sla --endpoint-name=GET:/productpage --service-name=e2e::productpage |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_cpm --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_cpm --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_avg --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_avg --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_sla --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=endpoint_sla --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::productpage"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::productpage
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::reviews"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::reviews
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency instance --service-name=e2e::productpage --dest-service-name=e2e::reviews"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency instance --service-name=e2e::productpage --dest-service-name=e2e::reviews
+        echo "--------------------------------------------------"
+
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_relation_client_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_relation_client_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_relation_server_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_relation_server_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_relation_client_cpm --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) --dest-service-name=e2e::reviews --dest-instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_relation_client_cpm --service-name=e2e::productpage --instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) --dest-service-name=e2e::reviews --dest-instance-name=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+        echo "swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_relation_server_cpm --service-name=e2e::productpage --instance-name=$( swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) -dest-service-name=e2e::reviews --dest-instance-name=$( swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -"
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=service_instance_relation_server_cpm --service-name=e2e::productpage --instance-name=$( swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) -dest-service-name=e2e::reviews --dest-instance-name=$( swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) |yq e 'to_entries' -
+        echo "--------------------------------------------------"
+
   on: always
 
 trigger:
