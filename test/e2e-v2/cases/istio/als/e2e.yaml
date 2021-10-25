@@ -90,9 +90,7 @@ cleanup:
     - name: show kubectl
       command: kubectl get pods -A -o wide
     - name: run result
-      command: |
-        kubectl port-forward service/skywalking-oap -n istio-system  12800:12800 &
-        swctl --display yaml --base-url=http://127.0.0.1:12800/graphql service ls
+      command: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
   on: always
 
 trigger:
