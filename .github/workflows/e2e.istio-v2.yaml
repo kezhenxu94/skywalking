@@ -115,6 +115,15 @@ jobs:
           export ISTIO_VERSION=1.9.1
           istioctl version || (curl -L https://istio.io/downloadIstio | sh - && sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/)
           istioctl install -y --set profile=demo
+
+          echo "--------------------------------"
+          printenv
+          echo "--------------------------------"
+          ls -al ~/.kube
+          echo "--------------------------------"
+          echo $HOME
+          echo "--------------------------------"
+          ls -al $HOME/.kube
       - name: pod info
         shell: bash
         run: kubectl get pods -A
