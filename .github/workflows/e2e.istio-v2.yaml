@@ -115,19 +115,20 @@ jobs:
 
           export ISTIO_VERSION=1.9.1
           istioctl version || (curl -L https://istio.io/downloadIstio | sh - && sudo mv $PWD/istio-$ISTIO_VERSION/bin/istioctl /usr/local/bin/)
-          istioctl install -y --set profile=demo
+          istioctl install -y --set profile=demo \
+                      --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 \
+                      --set meshConfig.enableEnvoyAccessLogService=true
 
-          echo "--------------------------------"
-          printenv
-          echo "--------------------------------"
-          ls -al ~/.kube
-          echo "--------------------------------"
-          echo $HOME
-          echo "--------------------------------"
-          ls -al $HOME/.kube
+          kubectl label namespace default istio-injection=enabled
+
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
+          kubectl wait --for=condition=Ready pods --all --timeout=1200s
+          kubectl get pods -A -o wide --show-labels
+          kubectl get rs -A
       - name: pod info
         shell: bash
-        run: kubectl get pods -A
+        run: export KUBECONFIG=/tmp/test.config && kubectl get pods -A
 
   kind-test1:
     runs-on: ubuntu-latest

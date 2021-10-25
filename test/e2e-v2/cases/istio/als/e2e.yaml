@@ -35,15 +35,6 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: Install kubectl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
-    - name: cni init
-      command: |
-        export kubever=$(kubectl version | base64 | tr -d '\n')
-        kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
-        echo "$kubever"
-    - name: enbale nodes schedule
-      command: sleep 50 && kubectl taint nodes kind-control-plane node-role.kubernetes.io/master-
     - name: install istio
       command: |
         bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh istioctl
