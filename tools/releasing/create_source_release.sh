@@ -43,7 +43,8 @@ PRODUCT_NAME=${PRODUCT_NAME}-${RELEASE_VERSION}
 rm -rf ${PRODUCT_NAME}
 mkdir ${PRODUCT_NAME}
 
-git clone https://github.com/apache/skywalking.git ./${PRODUCT_NAME}
+# TODO
+git clone https://github.com/kezhenxu94/skywalking.git ./${PRODUCT_NAME}
 cd ${PRODUCT_NAME}
 
 TAG_EXIST=`git tag -l ${TAG_NAME} | wc -l`
@@ -57,6 +58,9 @@ git checkout ${TAG_NAME}
 
 git submodule init
 git submodule update
+
+./mvnw -q -pl oap-server/server-starter initialize \
+       -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties"
 
 cd ..
 
