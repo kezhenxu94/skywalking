@@ -88,34 +88,17 @@ setup:
 cleanup:
   steps:
     - name: show kubectl
+      command: kubectl get pods -A -o wide
+    - name: run result
       command: |
-        echo "kubectl get nodes --all-namespaces -o wide"
-        kubectl get nodes --all-namespaces -o wide
-        echo "--------------------------------"
-        kubectl get nodes|grep kind |awk -F " " 'system("echo \"kubectl describe node \""$1" && kubectl describe node "$1" && echo --------------------------------")'
-        echo "kubectl describe service -n istio-system istiod"
-        kubectl describe service -n istio-system istiod
-        echo "--------------------------------"
-        echo "kubectl describe service -n istio-system istio-ingressgateway"
-        kubectl describe service -n istio-system istio-ingressgateway
-        echo "--------------------------------"
-        echo "kubectl describe service -n istio-system istio-egressgateway"
-        kubectl describe service -n istio-system istio-egressgateway
-        echo "--------------------------------"
-        echo "kubectl describe pod -n istio-system --selector=\"app=istio-ingressgateway\""
-        kubectl describe pod -n istio-system --selector="app=istio-ingressgateway"
-        echo "--------------------------------"
-        echo "kubectl describe pod -n istio-system --selector=\"app=istio-egressgateway\""
-        kubectl describe pod -n istio-system --selector="app=istio-egressgateway"
-        echo "--------------------------------"
-        echo "kubectl logs -n istio-system  --tail=10000 -l \"app=istiod\""
-        kubectl logs -n istio-system  --tail=10000 -l "app=istiod"
+        kubectl port-forward service/skywalking-oap -n istio-system  12800:12800 &
+        swctl --display yaml --base-url=http://127.0.0.1:12800/graphql service ls
   on: always
 
 trigger:
   action: http
   interval: 3s
-  times: 10
+  times: 20
   url: http://${service_istio_ingressgateway_host}:${service_istio_ingressgateway_80}/productpage
   method: GET
 
