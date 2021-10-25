@@ -94,7 +94,7 @@ jobs:
         shell: bash
         run: |
           # create a cluster with the local registry enabled in containerd
-          cat <<EOF | kind create cluster --config=-
+          cat <<EOF | kind create cluster --kubeconfig=/tmp/test.config --config=-
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
           nodes:
@@ -103,6 +103,7 @@ jobs:
           - role: worker
           - role: worker
           EOF
+          export KUBECONFIG=/tmp/test.config
 
           echo "kubectl get nodes --all-namespaces -o wide"
           kubectl get nodes --all-namespaces -o wide
