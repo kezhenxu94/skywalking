@@ -18,6 +18,9 @@ name: CI AND IT
 
 on:
   pull_request:
+  push:
+    branches:
+      - kkkkk
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
 
@@ -39,94 +42,7 @@ jobs:
         with:
           submodules: true
       - name: Check License Header
-        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ci-platform:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Build and Test / Java ${{ matrix.java-version }} / ${{ matrix.os }}
-    needs: [ check-license-header ]
-    runs-on: ${{ matrix.os }}-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        os: [ ubuntu, macos, windows ]
-        java-version: [ 8 ]
-        include:
-          - os: ubuntu
-            java-version: 11
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-ci-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v2
-        if: env.SKIP_CI != 'true'
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: adopt
-      - name: Build and Test
-        if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu'
-        run: |
-          ./mvnw -q --batch-mode -P"backend,ui,dist,CI-with-IT" clean verify install javadoc:javadoc
-      - name: Build and Test
-        if: env.SKIP_CI != 'true' && matrix.os != 'ubuntu'
-        run: ./mvnw -q --batch-mode -P"backend,ui,dist" clean verify install
-      - uses: actions/upload-artifact@v2
-        if: env.SKIP_CI != 'true' && matrix.os == 'ubuntu' && matrix.java-version == '8'
-        name: Upload Agent
-        with:
-          name: dist
-          path: dist
-
-  check-dependency-license:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    needs: [ ci-platform ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - uses: actions/download-artifact@v2
-        if: env.SKIP_CI != 'true'
-        with:
-          name: dist
-          path: dist
-      - name: Cache local Maven repository
-        if: env.SKIP_CI != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-ci-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - name: Check Dependencies Licenses
-        if: env.SKIP_CI != 'true'
-        run: tools/dependencies/check-LICENSE.sh
-
-  ci:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: CI
-    needs: [ check-dependency-license ]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
-      - name: Merge Requirement
-        if: env.SKIP_CI != 'true'
-        run: echo 'Merge Requirement'
+        id: e2e
+        uses: ./.github/actions/infra-e2e-test
+      - name: test
+        run: echo ${{ steps.e2e.outputs.test }}
