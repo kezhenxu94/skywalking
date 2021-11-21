@@ -28,9 +28,6 @@ concurrency:
   group: e2e-event-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  SKIP_TEST: true
-
 jobs:
   Event:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -47,10 +44,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Set Skip Env Var
-        uses: ./.github/actions/skip
       - name: Run E2E Test
-        if: env.SKIP_CI != 'true'
         uses: ./.github/actions/infra-e2e-test
         with:
           config-file: ${{ matrix.config-file }}

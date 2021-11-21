@@ -25,16 +25,34 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Cache local Maven repository
+    - uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          skip-ci:
+            - '*.md'
+            - '*.txt'
+            - 'skywalking-ui'
+            - '.asf.yaml'
+            - '.dlc.yaml'
+            - '.licenserc.yaml'
+            - 'docs/menu.yml'
+            - '.github/actions/skip/action.yml'
+            - '.github/workflows/codeql.yaml'
+            - 'dist-material/release-docs'
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Cache local Maven repository
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Check License
-      uses: apache/skywalking-eyes@a63f4afcc287dfb3727ecc45a4afc55a5e69c15f
-    - name: Build Docker Image
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Check License
+      uses: apache/skywalking-eyes@30367d8286e324d5efc58de4c70c37ea3648306d
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Build Docker Image
       shell: bash
       env:
         SKIP_TEST: "true"
@@ -43,23 +61,26 @@ runs:
         # Retry one more time due to frequent "maven connection reset"
         make docker || make docker
         echo "::endgroup::"
-    - name: Build Java Test Services
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Build Java Test Services
       shell: bash
       run: |
         echo "::group::build java test services"
         # Retry one more time due to frequent "maven connection reset"
         ./mvnw --batch-mode -f test/e2e-v2/java-test-service/pom.xml clean package
         echo "::endgroup::"
-    - name: Setup go
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Setup go
       uses: actions/setup-go@v2
       with:
         go-version: '1.16'
-    - name: Run E2E Test
+    - if: steps.changes.outputs.skip-ci == 'true'
+      name: Run E2E Test
       uses: apache/skywalking-infra-e2e@main
       with:
         e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/${{ inputs.config-file }}
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
+    - if: failure()
+      uses: actions/upload-artifact@v2
       name: Upload Logs
       with:
         name: logs
