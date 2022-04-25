@@ -17,6 +17,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - mvnd
   pull_request:
     paths-ignore:
       - "**.md"
@@ -62,8 +65,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
+      - uses: ./.github/actions/mvnd
       - name: Check code style
-        run: ./mvnw clean checkstyle:check
+        run: mvnd clean checkstyle:check
 
   sanity-check:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -96,9 +100,10 @@ jobs:
           distribution: 'temurin'
           java-version: '8'
           cache: 'maven'
+      - uses: ./.github/actions/mvnd
       - name: Build distribution tar
         run: |
-          ./mvnw clean install -B -q \
+          mvnd clean install -B -q \
             -Dmaven.test.skip \
             -Dmaven.javadoc.skip \
             -Dcheckstyle.skip
@@ -193,8 +198,9 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
+      - uses: ./.github/actions/mvnd
       - name: Unit test
-        run: ./mvnw clean verify -q -B -D"checkstyle.skip" || ./mvnw clean verify -q -B -D"checkstyle.skip"
+        run: mvnd clean verify -q -B -D"checkstyle.skip" || mvnd clean verify -q -B -D"checkstyle.skip"
 
   integration-test:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -219,10 +225,11 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
+      - uses: ./.github/actions/mvnd
       - name: Integration test
         run: |
-          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
-          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
+          mvnd clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
+          mvnd clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
 
   e2e-test:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -462,9 +469,10 @@ jobs:
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
+      - uses: ./.github/actions/mvnd
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: mvnd -B -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -536,9 +544,10 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: adopt
+      - uses: ./.github/actions/mvnd
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: mvnd -B -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
