@@ -18,7 +18,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ 'master' ]
+    branches:
+      - 'master'
+      - 'codeql'
   pull_request:
     branches: [ 'master' ]
   schedule:
@@ -30,14 +32,9 @@ concurrency:
 
 jobs:
   analyze:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    # if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Analyze
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java' ]
 
     steps:
     - name: Checkout repository
@@ -46,11 +43,12 @@ jobs:
         submodules: true
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v2
       with:
-        languages: ${{ matrix.language }}
+        languages: java
+        queries: +security-and-quality
 
-    - run: ./mvnw -q -Dmaven.test.skip=true clean install || ./mvnw -q -Dmaven.test.skip=true clean install
+    - run: ./mvnw -q -Dmaven.test.skip=true -Dcheckstyle.skip -Dmaven.javadoc.skip clean install || ./mvnw -q -Dmaven.test.skip=true -Dcheckstyle.skip -Dmaven.javadoc.skip clean install
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2
