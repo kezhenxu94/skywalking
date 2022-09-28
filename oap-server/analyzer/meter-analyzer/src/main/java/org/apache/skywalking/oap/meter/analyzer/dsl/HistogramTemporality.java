@@ -19,17 +19,20 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 /**
- * Histogram type, which calculation type of bucket value
+ * Histogram temporality.
+ *
+ * Reference to the data model of OpenTelemetry.
+ * https://opentelemetry.io/docs/reference/specification/metrics/datamodel.
  */
-public enum HistogramType {
+public enum HistogramTemporality {
 
     /**
-     * Such as Prometheus, Open Telemetry.
+     * Such as Prometheus.
      */
     CUMULATIVE,
 
     /**
-     * Such as Agent Meter.
+     * Such as SkyWalking Agent Meter, OpenTelemetry clients.
      */
-    ORDINARY
+    DELTA
 }

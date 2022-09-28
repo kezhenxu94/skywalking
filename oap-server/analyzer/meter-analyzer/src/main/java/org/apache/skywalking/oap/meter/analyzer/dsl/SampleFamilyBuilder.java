@@ -36,7 +36,7 @@ public class SampleFamilyBuilder {
         return new SampleFamilyBuilder(samples, SampleFamily.RunningContext.instance());
     }
 
-    public SampleFamilyBuilder histogramType(HistogramType type) {
+    public SampleFamilyBuilder histogramType(HistogramTemporality type) {
         this.context.setHistogramType(type);
         return this;
     }

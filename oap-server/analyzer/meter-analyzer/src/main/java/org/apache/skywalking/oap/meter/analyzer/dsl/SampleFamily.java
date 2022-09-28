@@ -370,6 +370,16 @@ public class SampleFamily {
             this.context, type.execute(samples, newLabelName, existingLabelName, namespaceLabelName));
     }
 
+    public SampleFamily deltaTemporality() {
+        ExpressionParsingContext.get().ifPresent(it -> it.temporality = HistogramTemporality.DELTA);
+        return this;
+    }
+
+    public SampleFamily cumulativeTemporality() {
+        ExpressionParsingContext.get().ifPresent(it -> it.temporality = HistogramTemporality.CUMULATIVE);
+        return this;
+    }
+
     public SampleFamily histogram() {
         return histogram("le", this.context.defaultHistogramBucketUnit);
     }
@@ -395,7 +405,7 @@ public class SampleFamily {
                       .filter(s -> s.labels.containsKey(le))
                       .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                       .map(s -> {
-                          double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
+                          double r = this.context.histogramType == HistogramTemporality.DELTA ? s.value : s.value - pre.get();
                           pre.set(s.value);
                           ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                                                                         .putAll(Maps.filterKeys(s.labels,
@@ -405,7 +415,7 @@ public class SampleFamily {
                                                                         .put(
                                                                             "le", String.valueOf(
                                                                                 (long) ((Double.parseDouble(
-                                                                                    this.context.histogramType == HistogramType.ORDINARY ? s.labels
+                                                                                    this.context.histogramType == HistogramTemporality.DELTA ? s.labels
                                                                                         .get(
                                                                                             le) : preLe.get())) * scale)))
                                                                         .build();
@@ -619,14 +629,14 @@ public class SampleFamily {
 
         static RunningContext instance() {
             return RunningContext.builder()
-                                 .histogramType(HistogramType.CUMULATIVE)
+                                 .histogramType(HistogramTemporality.CUMULATIVE)
                                  .defaultHistogramBucketUnit(TimeUnit.SECONDS)
                                  .build();
         }
 
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
 
-        private HistogramType histogramType;
+        private HistogramTemporality histogramType;
 
         private TimeUnit defaultHistogramBucketUnit;
     }

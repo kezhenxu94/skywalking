@@ -61,6 +61,7 @@ public class ExpressionParsingTest {
                                         .scopeLabels(Sets.newHashSet("rr"))
                                         .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.LATEST)
+                                        .temporality(HistogramTemporality.CUMULATIVE)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
                 false,
@@ -74,6 +75,7 @@ public class ExpressionParsingTest {
                                         .scopeLabels(Sets.newHashSet("rr"))
                                         .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.AVG)
+                                        .temporality(HistogramTemporality.CUMULATIVE)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
                 false,
@@ -87,6 +89,7 @@ public class ExpressionParsingTest {
                                         .scopeLabels(Sets.newHashSet("rr"))
                                         .aggregationLabels(Sets.newHashSet("tt"))
                                         .downsampling(DownsamplingType.SUM)
+                                        .temporality(HistogramTemporality.CUMULATIVE)
                                         .isHistogram(true)
                                         .percentiles(new int[]{50, 99}).build(),
                 false,
@@ -100,6 +103,20 @@ public class ExpressionParsingTest {
                                         .scopeLabels(Sets.newHashSet("node_identifier_host_name"))
                                         .aggregationLabels(Sets.newHashSet("node_identifier_host_name"))
                                         .downsampling(DownsamplingType.AVG)
+                                        .temporality(HistogramTemporality.CUMULATIVE)
+                                        .isHistogram(false).build(),
+                false,
+            },
+            {
+                "temporality",
+                "(node_cpu_seconds_total.sum(['node_identifier_host_name']) - node_cpu_seconds_total.tagEqual('mode', 'idle').sum(['node_identifier_host_name'])).service(['node_identifier_host_name'], Layer.GENERAL).deltaTemporality() ",
+                ExpressionParsingContext.builder()
+                                        .samples(Collections.singletonList("node_cpu_seconds_total"))
+                                        .scopeType(ScopeType.SERVICE)
+                                        .scopeLabels(Sets.newHashSet("node_identifier_host_name"))
+                                        .aggregationLabels(Sets.newHashSet("node_identifier_host_name"))
+                                        .downsampling(DownsamplingType.AVG)
+                                        .temporality(HistogramTemporality.DELTA)
                                         .isHistogram(false).build(),
                 false,
                 },

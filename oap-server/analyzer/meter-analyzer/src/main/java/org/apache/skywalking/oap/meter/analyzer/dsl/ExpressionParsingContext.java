@@ -47,6 +47,7 @@ public class ExpressionParsingContext implements Closeable {
                                               .samples(Lists.newArrayList())
                                               .downsampling(DownsamplingType.AVG)
                                               .scopeLabels(Sets.newHashSet())
+                                              .temporality(HistogramTemporality.CUMULATIVE)
                                               .aggregationLabels(Sets.newHashSet()).build());
         }
         return CACHE.get();
@@ -68,6 +69,8 @@ public class ExpressionParsingContext implements Closeable {
     Set<String> scopeLabels;
 
     DownsamplingType downsampling;
+
+    HistogramTemporality temporality;
 
     ScopeType scopeType;
 

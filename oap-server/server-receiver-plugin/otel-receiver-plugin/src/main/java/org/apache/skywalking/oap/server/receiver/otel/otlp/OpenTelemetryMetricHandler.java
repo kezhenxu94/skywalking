@@ -48,6 +48,7 @@ import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceResponse;
 import io.opentelemetry.proto.collector.metrics.v1.MetricsServiceGrpc;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
+import io.opentelemetry.proto.metrics.v1.Metric.DataCase;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint.ValueAtQuantile;
 import io.vavr.Function1;
 import lombok.extern.slf4j.Slf4j;
@@ -205,7 +206,11 @@ public class OpenTelemetryMetricHandler
             }
         }
         if (metric.hasHistogram()) {
-            return metric.getHistogram().getDataPointsList().stream()
+            final io.opentelemetry.proto.metrics.v1.Histogram histogram = metric.getHistogram();
+            if (histogram.getAggregationTemporality() != AGGREGATION_TEMPORALITY_CUMULATIVE) {
+                return Stream.empty();
+            }
+            return histogram.getDataPointsList().stream()
                 .map(point -> new Histogram(
                     metric.getName(),
                     mergeLabels(nodeLabels,
@@ -229,6 +234,9 @@ public class OpenTelemetryMetricHandler
                             ValueAtQuantile::getValue)),
                     point.getTimeUnixNano() / 1000000));
         }
-        throw new UnsupportedOperationException("Unsupported type");
+        if (metric.getDataCase() == DataCase.DATA_NOT_SET) {
+            return Stream.empty();
+        }
+        throw new UnsupportedOperationException("Unsupported type: " + metric.getDataCase());
     }
 }
