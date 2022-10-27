@@ -635,8 +635,7 @@
                   "i": "22",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load in Current Service (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services"
+                    "title": "Endpoint Load in Current Service (calls / min)"
                   },
                   "graph": {
                     "type": "TopList",
