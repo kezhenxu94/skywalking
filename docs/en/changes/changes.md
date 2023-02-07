@@ -41,6 +41,49 @@
 * Use TTL-driven interval settings for the `measure-default` group in BanyanDB.
 * Fix wrong group of non time-relative metadata in BanyanDB.
 * Refactor `StorageData#id` to the new StorageID object from a String type.
+* Support multiple component IDs in the service topology level.
+* Add `ElasticSearch.Keyword` annotation to declare the target field type as `keyword`.
+* [Breaking Change] Column `component_id` of `service_relation_client_side` and `service_relation_server_side` have been replaced by `component_ids`.
+* Support `priority` definition in the `component-libraries.yml`.
+* Enhance service topology query. When there are multiple components detected from the server side,
+  the component type of the node would be determined by the priority, which was random in the previous release.
+* Remove `component_id` from `service_instance_relation_client_side` and `service_instance_relation_server_side`.
+* Make the satellite E2E test more stable.
+* Add Istio 1.16 to test matrix.
+* Register ValueColumn as Tag for Record in BanyanDB storage plugin.
+* Bump up Netty to 4.1.86.
+* Remove unnecessary additional columns when storage is in logical sharding mode.
+* The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
+* Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
+* Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
+* Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
+* Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
+* Fix cannot display attached events when using Zipkin Lens UI query traces.
+* Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
+* Merge `TIME_BUCKET` of `Metrics` and `Record` into `StorageData`.
+* Support no `layer` in the `listServices` query.
+* Fix `time_bucket` of `ServiceTraffic` not set correctly in `slowSql` of MAL.
+* Correct the TopN record query DAO of BanyanDB.
+* Tweak interval settings of BanyanDB.
+* Support monitoring AWS Cloud EKS.
+* Bump BanyanDB Java client to 0.3.0-rc1.
+* Remove `id` tag from measures.
+* Add `Banyandb.MeasureField` to mark a column as a BanyanDB Measure field.
+* Add `BanyanDB.StoreIDTag` to store a process's id for searching.
+* [**Breaking Change**] The supported version of ShardingSphere-Proxy is upgraded from 5.1.2 to 5.3.1. Due to the changes of ShardingSphere's API, versions before 5.3.1 are not compatible.
+* Add the eBPF network profiling E2E Test in the per storage.
+* Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
+* Add Python HBase happybase module component ID(94).
+* Fix gRPC alarm cannot update settings from dynamic configuration source.
+* Add `batchOfBytes` configuration to limit the size of bulk flush.
+* Add Python Websocket module component ID(7018).
+* [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
+* Enhance OAP HTTP server to support HTTPS
+* Remove handler scan in otel receiver, manual initialization instead
+* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
+* Avoid Antlr dependencies' versions might be different in compile time and runtime.
+* Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
+* Add missing TCP throughput metrics.
 
 #### UI
 
