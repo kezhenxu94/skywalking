@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>9.4.0-20221215-0956</version>
+    <version>9.4.0-20230208-1247</version>
 
     <parent>
         <groupId>org.apache</groupId>
