@@ -42,8 +42,8 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
     @Override
     @SneakyThrows
     public List<Record> readRecords(final RecordCondition condition,
-                                           final String valueColumnName,
-                                           final Duration duration) {
+                                    final String valueColumnName,
+                                    final Duration duration) {
         final var tables = tableHelper.getTablesForRead(
             condition.getName(),
             duration.getStartTimeBucket(),
