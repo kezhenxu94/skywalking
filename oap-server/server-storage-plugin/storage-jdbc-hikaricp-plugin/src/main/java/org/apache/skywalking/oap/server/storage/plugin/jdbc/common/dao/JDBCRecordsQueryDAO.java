@@ -80,12 +80,8 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
         String table) {
         StringBuilder sql = new StringBuilder("select * from " + table + " where ");
         List<Object> parameters = new ArrayList<>(10);
-
-        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
-            sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
-            parameters.add(condition.getParentEntity().buildId());
-        }
-
+        sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
+        parameters.add(condition.getParentEntity().buildId());
         sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(duration.getStartTimeBucketInSec());
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
