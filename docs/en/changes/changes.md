@@ -2,6 +2,8 @@
 
 #### Project
 
+* Bump up snakeyaml to 2.0.
+
 #### OAP Server
 
 * Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
