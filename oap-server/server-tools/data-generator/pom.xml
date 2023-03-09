@@ -23,7 +23,7 @@
     <parent>
         <artifactId>server-tools</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.4.0-20230208-1247</version>
+        <version>9.4.0-20230309-1325</version>
     </parent>
     <artifactId>data-generator</artifactId>
     <name>data-generator</name>
