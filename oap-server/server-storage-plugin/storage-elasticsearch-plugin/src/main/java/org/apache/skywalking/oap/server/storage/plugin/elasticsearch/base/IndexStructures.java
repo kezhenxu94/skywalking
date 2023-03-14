@@ -109,6 +109,7 @@ public class IndexStructures {
     /**
      * Returns true when the current structures already contains the properties of the input
      * mappings.
+     * For no-initMode check.
      */
     public boolean containsMappingKeys(String tableName, Mappings mappings) {
         if (Objects.isNull(mappings) ||
@@ -176,6 +177,7 @@ public class IndexStructures {
 
         /**
          * Returns ture when the input fields have already been stored in the properties.
+         * For no-initMode check.
          */
         private boolean containsAllFieldsKeys(Fields fields) {
             if (this.properties.size() < fields.properties.size()) {
@@ -185,7 +187,7 @@ public class IndexStructures {
             if (!isContains) {
                 return false;
             }
-            return Objects.equals(this.source, fields.source);
+            return true;
         }
 
         /**
