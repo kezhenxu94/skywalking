@@ -107,6 +107,21 @@ public class IndexStructures {
     }
 
     /**
+     * Returns true when the current structures already contains the properties of the input
+     * mappings.
+     */
+    public boolean containsMappingKeys(String tableName, Mappings mappings) {
+        if (Objects.isNull(mappings) ||
+            Objects.isNull(mappings.getProperties()) ||
+            mappings.getProperties().isEmpty()) {
+            return true;
+        }
+        return mappingStructures.containsKey(tableName)
+            && mappingStructures.get(tableName)
+                         .containsAllFieldsKeys(new Fields(mappings));
+    }
+
+    /**
      * Returns true when the current index setting equals the input.
      */
     public boolean compareIndexSetting(String tableName, Map<String, Object> settings) {
@@ -157,6 +172,20 @@ public class IndexStructures {
                 }
             }
             return true;
+        }
+
+        /**
+         * Returns ture when the input fields have already been stored in the properties.
+         */
+        private boolean containsAllFieldsKeys(Fields fields) {
+            if (this.properties.size() < fields.properties.size()) {
+                return false;
+            }
+            boolean isContains = this.properties.keySet().containsAll(fields.properties.keySet());
+            if (!isContains) {
+                return false;
+            }
+            return Objects.equals(this.source, fields.source);
         }
 
         /**

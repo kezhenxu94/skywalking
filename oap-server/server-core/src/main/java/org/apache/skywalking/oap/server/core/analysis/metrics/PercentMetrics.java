@@ -34,7 +34,7 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = TOTAL, storageOnly = true)
+    @Column(columnName = TOTAL)
     private long total;
     @Getter
     @Setter

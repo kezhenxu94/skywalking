@@ -89,13 +89,12 @@ public class StorageEsInstaller extends ModelInstaller {
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
-                boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
                 // Do not check index settings in the "no-init mode",
                 // because the no-init mode OAP server doesn't take responsibility for index settings.
                 if (RunningMode.isNoInitMode()) {
-                    exist = containsMapping;
+                    exist = structures.containsMappingKeys(tableName, createMapping(model));
                 } else {
-                    exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
+                    exist = structures.containsMapping(tableName, createMapping(model)) && structures.compareIndexSetting(tableName, createSetting(model));
                 }
             }
             return exist;

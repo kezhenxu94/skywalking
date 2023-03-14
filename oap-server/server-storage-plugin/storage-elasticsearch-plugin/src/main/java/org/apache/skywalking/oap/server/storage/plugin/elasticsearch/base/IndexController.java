@@ -98,14 +98,13 @@ public enum IndexController {
     }
 
     /**
-     * There have two cases:
-     * 1. When a model is the metric storage mode, a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
-     * appended to the physical index. The value of the column is the original table name in other storages, such as the
-     * OAL name.
+     * There have two cases: 1. When a model is the metric storage mode, a column named {@link
+     * LogicIndicesRegister#METRIC_TABLE_NAME} would be appended to the physical index. The value of the column is the
+     * original table name in other storages, such as the OAL name.
      *
-     * 2. When a model is the record storage mode, it's not have the super dataset and the storage is not sharding,
-     * a column named {@link LogicIndicesRegister#RECORD_TABLE_NAME} would be appended to the physical index.
-     * The value of the column is the original table name in other storages.
+     * 2. When a model is the record storage mode, it's not have the super dataset and the storage is not sharding, a
+     * column named {@link LogicIndicesRegister#RECORD_TABLE_NAME} would be appended to the physical index. The value of
+     * the column is the original table name in other storages.
      */
     public Map<String, Object> appendTableColumn(Model model, Map<String, Object> columns) {
         if (isMetricModel(model)) {
@@ -156,6 +155,12 @@ public enum IndexController {
                         aliasMap.put(modelColumn.getColumnName().getName(), alias);
                         columnName = alias;
                     }
+                    /*
+                     * Due to when SPM CP < 1.6 strictly check the index temple and cause the start failure,
+                     * this fork removed throws the conflicts check with `isIndexOnly` and `isStorageOnly`.
+                     * When sharding mode, don't merge the column setting, should no conflicts for now.
+                     * When merge mode, if there is a conflict and has `isIndexOnly=true` or `isStorageOnly=true`, should merge the column to `isIndexOnly=true` or `isStorageOnly=true`
+                     */
                     if (columns.containsKey(columnName)) {
                         checkModelColumnConflicts(columns.get(columnName), modelColumn, physicalName);
                     } else {
@@ -167,6 +172,14 @@ public enum IndexController {
                     String columnName = modelColumn.getColumnName().getName();
                     if (columns.containsKey(columnName)) {
                         checkModelColumnConflicts(columns.get(columnName), modelColumn, physicalName);
+                        columns.put(
+                            columnName,
+                            mergeIndexOnlyColumn(columns.get(columnName), modelColumn, physicalName)
+                        );
+                        columns.put(
+                            columnName,
+                            mergeStorageOnlyColumn(columns.get(columnName), modelColumn, physicalName)
+                        );
                     } else {
                         columns.put(columnName, modelColumn);
                     }
@@ -185,8 +198,7 @@ public enum IndexController {
         }
 
         /**
-         * Get real physical column name by logic name.
-         * Warning: This is only used to solve the column has alias.
+         * Get real physical column name by logic name. Warning: This is only used to solve the column has alias.
          */
         @Deprecated
         public static String getPhysicalColumnName(String modelName, String columnName) {
@@ -206,17 +218,42 @@ public enum IndexController {
          * Check the columns conflicts when they in one physical index
          */
         private static void checkModelColumnConflicts(ModelColumn mc1, ModelColumn mc2, String physicalName) {
-            if (!(mc1.isIndexOnly() == mc2.isIndexOnly())) {
-                throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isIndexOnly conflict in index: " + physicalName);
-            }
-            if (!(mc1.isStorageOnly() == mc2.isStorageOnly())) {
-                throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isStorageOnly conflict in index: " + physicalName);
-            }
             if (!mc1.getType().equals(mc2.getType())) {
-                throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " Class type conflict in index: " + physicalName);
+                throw new IllegalArgumentException(
+                    mc1.getColumnName() + " and " + mc2.getColumnName() + " Class type conflict in index: " + physicalName);
             }
-            if (!(mc1.getElasticSearchExtension().needMatchQuery() == mc2.getElasticSearchExtension().needMatchQuery())) {
-                throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " needMatchQuery conflict in index: " + physicalName);
+            if (!(mc1.getElasticSearchExtension().needMatchQuery() == mc2.getElasticSearchExtension()
+                                                                         .needMatchQuery())) {
+                throw new IllegalArgumentException(
+                    mc1.getColumnName() + " and " + mc2.getColumnName() + " needMatchQuery conflict in index: " + physicalName);
+            }
+        }
+
+        private static ModelColumn mergeIndexOnlyColumn(ModelColumn mc1,
+                                                        ModelColumn mc2,
+                                                        String physicalName) {
+            if (!(mc1.isIndexOnly() == mc2.isIndexOnly())) {
+                log.warn(
+                    mc1.getColumnName() + " and " + mc2.getColumnName() + " isIndexOnly conflict in index: " + physicalName);
+            }
+            if (mc1.isIndexOnly()) {
+                return mc1;
+            } else {
+                return mc2;
+            }
+        }
+
+        private static ModelColumn mergeStorageOnlyColumn(ModelColumn mc1,
+                                                          ModelColumn mc2,
+                                                          String physicalName) {
+            if (!(mc1.isStorageOnly() == mc2.isStorageOnly())) {
+                log.warn(
+                    mc1.getColumnName() + " and " + mc2.getColumnName() + " isStorageOnly conflict in index: " + physicalName);
+            }
+            if (mc1.isStorageOnly()) {
+                return mc1;
+            } else {
+                return mc2;
             }
         }
     }
