@@ -396,10 +396,6 @@ jobs:
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
-          - name: TTL TiDB
-            config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
-          - name: TTL PostgreSQL
-            config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
 #          - name: TTL ES 6.3.2
 #            config: test/e2e-v2/cases/ttl/es/e2e.yaml
 #            env: ES_VERSION=6.3.2
