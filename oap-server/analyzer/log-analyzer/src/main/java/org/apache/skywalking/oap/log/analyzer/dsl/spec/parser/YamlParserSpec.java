@@ -37,7 +37,7 @@ public class YamlParserSpec extends AbstractParserSpec {
     }
 
     public Yaml create() {
-        final var dumperOptions = new DumperOptions();
+        final  DumperOptions dumperOptions = new DumperOptions();
         return new Yaml(
                 new SafeConstructor(loaderOptions),
                 new Representer(dumperOptions),
