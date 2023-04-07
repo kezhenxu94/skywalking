@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.4.0-20230331-1055</version>
+        <version>9.4.0-20230407-0339</version>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
