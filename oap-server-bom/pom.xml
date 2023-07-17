@@ -32,14 +32,14 @@
         <log4j.version>2.17.1</log4j.version>
         <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
         <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
-        <graphql-java.version>20.2</graphql-java.version>
+        <graphql-java.version>21.0</graphql-java.version>
         <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
         <h2.version>2.1.212</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.5.7</zookeeper.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.1.1-jre</guava.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <protobuf-java.version>3.21.8</protobuf-java.version>
         <protobuf-java-util.version>3.21.8</protobuf-java-util.version>
