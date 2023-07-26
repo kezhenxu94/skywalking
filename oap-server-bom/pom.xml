@@ -34,7 +34,6 @@
         <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
         <graphql-java.version>21.0</graphql-java.version>
         <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
-        <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
         <h2.version>2.1.212</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
@@ -49,7 +48,7 @@
         <kubernetes.version>18.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.23.16</zipkin.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.15.2</jackson.version>
         <jackson-databind.version>2.13.4.1</jackson-databind.version>
         <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
@@ -143,11 +142,6 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
