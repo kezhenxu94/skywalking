@@ -105,7 +105,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
 
-        if (cluster.startsWith("inbound|")) {
+        if (cluster.startsWith("inbound|") && !previousResult.hasDownstreamMetrics()) {
             // Server side
             final TCPServiceMeshMetric metrics;
             if (downstreamService.equals(config.serviceMetaInfoFactory().unknown())) {
@@ -122,7 +122,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             }
             sources.addMetrics(metrics);
             newResult.hasDownstreamMetrics(true);
-        } else if (cluster.startsWith("outbound|")) {
+        } else if (cluster.startsWith("outbound|") && !previousResult.hasUpstreamMetrics()) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
             final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());

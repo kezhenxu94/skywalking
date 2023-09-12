@@ -6,7 +6,8 @@
 #### OAP Server
 
 * ElasticSearchClient: Add `deleteById` API.
-* Fix Custom alarm rules are overwritten by 'resource/alarm-settings.yml'
+* Fix Custom alarm rules are overwritten by 'resource/alarm-settings.yml'.
+* Only analyze sidecar ALS logs when previous analyzer failed, per upstream/downstream.
 
 #### UI
 

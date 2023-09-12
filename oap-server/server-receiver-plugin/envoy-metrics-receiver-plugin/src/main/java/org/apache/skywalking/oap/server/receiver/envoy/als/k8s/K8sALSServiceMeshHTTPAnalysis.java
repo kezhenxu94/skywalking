@@ -105,10 +105,10 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         }
         final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
 
-        final var result = Result.builder();
+        final var result = previousResult.toBuilder();
         final var previousMetrics = previousResult.getMetrics();
         final var sources = previousMetrics.getHttpMetricsBuilder();
-        if (cluster.startsWith("inbound|")) {
+        if (cluster.startsWith("inbound|") && !previousResult.hasDownstreamMetrics()) {
             // Server side
             final HTTPServiceMeshMetric.Builder metrics;
             if (downstreamService.equals(config.serviceMetaInfoFactory().unknown())) {
@@ -124,11 +124,11 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             }
             sources.addMetrics(metrics);
             result.hasDownstreamMetrics(true);
-        } else if (cluster.startsWith("outbound|")) {
+        } else if (cluster.startsWith("outbound|") && !previousResult.hasUpstreamMetrics()) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
             if (!isValid(upstreamRemoteAddress)) {
-                return result.metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
+                return result.metrics(previousMetrics.setHttpMetrics(sources)).service(localService).build();
             }
             final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
 
