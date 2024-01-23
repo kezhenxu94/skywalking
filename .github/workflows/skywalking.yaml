@@ -147,7 +147,7 @@ jobs:
         uses: tj-actions/changed-files@v35.9.2
         with:
           files: |
-            skywalking-ui
+            skywalking-ui/**
       - name: List all modified files
         if: steps.filter-oap.outputs.any_modified == 'true' || steps.filter-ui.outputs.any_modified == 'true' || steps.filter-pom.outputs.any_modified == 'true'
         run: |
