@@ -149,7 +149,6 @@ jobs:
           files: |
             skywalking-ui/**
       - name: List all modified files
-        if: steps.filter-oap.outputs.any_modified == 'true' || steps.filter-ui.outputs.any_modified == 'true' || steps.filter-pom.outputs.any_modified == 'true'
         run: |
           echo "Files that have changed or modified:"
           echo "OAP: ${{ steps.filter-oap.outputs.all_changed_and_modified_files }}"
