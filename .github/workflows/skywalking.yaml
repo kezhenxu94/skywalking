@@ -146,8 +146,9 @@ jobs:
         id: filter-ui
         uses: tj-actions/changed-files@v35.9.2
         with:
+          fetch_additional_submodule_history: true
           files: |
-            skywalking-ui/**
+            skywalking-ui
       - name: List all modified files
         run: |
           echo "Files that have changed or modified:"
