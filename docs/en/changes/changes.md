@@ -1,4 +1,4 @@
-## 10.3.0
+## 10.10.0
 
 #### Project
 
@@ -9,5 +9,5 @@
 #### Documentation
 
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/230?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.10.0)
 
