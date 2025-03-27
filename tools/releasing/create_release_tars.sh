@@ -20,62 +20,71 @@
 # This script relies on few environment variables to determine source code package
 # behavior, those variables are:
 #   RELEASE_VERSION -- The version of this source package.
-# For example: RELEASE_VERSION=10.0.0
+#   NEXT_RELEASE_VERSION -- The version of the next release.
+# For example: RELEASE_VERSION=10.0.0, NEXT_RELEASE_VERSION=10.0.1
 
+set -e -o pipefail
 
-RELEASE_VERSION=${RELEASE_VERSION}
-TAG_NAME=v${RELEASE_VERSION}
-PRODUCT_NAME="apache-skywalking-apm"
-
-echo "Release version "${RELEASE_VERSION}
-echo "Source tag "${TAG_NAME}
-
-if [ "$RELEASE_VERSION" == "" ]; then
-  echo "RELEASE_VERSION environment variable not found, Please setting the RELEASE_VERSION."
+if [ "$RELEASE_VERSION" == "" ] || [ "$NEXT_RELEASE_VERSION" == "" ]; then
+  echo "RELEASE_VERSION or NEXT_RELEASE_VERSION environment variable not found."
+  echo "Please set the RELEASE_VERSION and NEXT_RELEASE_VERSION."
   echo "For example: export RELEASE_VERSION=10.0.0"
+  echo "           : export NEXT_RELEASE_VERSION=10.0.1"
   exit 1
 fi
 
-echo "Creating source package"
+PRODUCT_NAME="apache-skywalking-apm"
+TAG=v${RELEASE_VERSION}
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+MVN=${MVN:-./mvnw}
 
-PRODUCT_NAME=${PRODUCT_NAME}-${RELEASE_VERSION}
-
-rm -rf ${PRODUCT_NAME}
-mkdir ${PRODUCT_NAME}
-
-git clone https://github.com/apache/skywalking.git ./${PRODUCT_NAME}
-cd ${PRODUCT_NAME}
-
-TAG_EXIST=`git tag -l ${TAG_NAME} | wc -l`
-
-if [ ${TAG_EXIST} -ne 1 ]; then
-    echo "Could not find the tag named" ${TAG_NAME}
-    exit 1
+if [ -d "skywalking" ]; then
+  rm -rf skywalking
 fi
 
-git checkout ${TAG_NAME}
+echo "Cloning the repository..."
+git clone --recurse-submodules -j4 --depth 1 https://github.com/apache/skywalking.git && cd skywalking
 
-git submodule init
-git submodule update
+echo "Checking out the release branch ${RELEASE_VERSION}-release..."
+git checkout -b ${RELEASE_VERSION}-release
 
-# Generate a static version.properties and override the template when releasing source tar
-# because after that there is no Git information anymore.
-./mvnw -q -pl oap-server/server-starter initialize \
-       -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties"
+log_file=$(mktemp)
+echo "Setting the release version ${RELEASE_VERSION} in pom.xml, log file: ${log_file}"
+${MVN} versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION} > ${log_file} 2>&1
 
-cd ..
+echo "Committing the pom.xml changes..."
+git add pom.xml
+git commit -m "Prepare for release ${RELEASE_VERSION}"
 
-tar czf ${PRODUCT_NAME}-src.tgz \
+echo "Creating the release tag ${TAG}..."
+git tag ${TAG}
+
+echo "Pushing the release tag ${TAG} to the remote repository..."
+git push --set-upstream origin ${TAG}
+
+log_file=$(mktemp)
+echo "Generating a static version.properties, log file: ${log_file}"
+${MVN} -q -pl oap-server/server-starter -am initialize \
+       -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties" > ${log_file} 2>&1
+
+echo "Creating the release source artifacts..."
+tar czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
     --exclude .git \
     --exclude .DS_Store \
     --exclude .github \
     --exclude .gitignore \
     --exclude .gitmodules \
     --exclude .mvn/wrapper/maven-wrapper.jar \
-    ${PRODUCT_NAME}
+    .
 
-gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz
-gpg --armor --detach-sig ${PRODUCT_NAME}.tar.gz
+log_file=$(mktemp)
+echo "Building the release binary artifacts, log file: ${log_file}"
+${MVN} install package -DskipTests > ${log_file} 2>&1
+mv dist/${PRODUCT_NAME}-bin.tar.gz "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
 
-shasum -a 512 ${PRODUCT_NAME}-src.tgz > ${PRODUCT_NAME}-src.tgz.sha512
-shasum -a 512 ${PRODUCT_NAME}.tar.gz > ${PRODUCT_NAME}.tar.gz.sha512
+cd "${SCRIPT_DIR}"
+gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz
+gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
+
+shasum -a 512 ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz > ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz.sha512
+shasum -a 512 ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz > ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz.sha512
